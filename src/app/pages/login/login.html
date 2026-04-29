@@ -1,0 +1,96 @@
+<div class="login-page">
+  <main class="login-container">
+
+    <section class="brand-area">
+      <img
+        src="/kastamonu-logo.png"
+        alt="Kastamonu Üniversitesi Logosu"
+        class="university-logo"
+      />
+
+      <h1>UBYS</h1>
+      <p>KASTAMONU ÜNİVERSİTESİ</p>
+    </section>
+
+    <section class="login-card">
+      <div class="card-header">
+        <h2>Hoş Geldiniz</h2>
+        <p>Devam etmek için öğrenci bilgilerinizle giriş yapınız.</p>
+      </div>
+
+      <form (ngSubmit)="login()" class="login-form">
+
+        <div class="form-group">
+          <label>ÖĞRENCİ NUMARASI</label>
+          <div class="input-box">
+            <span class="input-icon">👤</span>
+            <input
+              type="text"
+              placeholder="Örn: 20240101"
+              [(ngModel)]="studentNumber"
+              name="studentNumber"
+            />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>ŞİFRE</label>
+          <div class="input-box">
+            <span class="input-icon">🔒</span>
+            <input
+              [type]="showPassword ? 'text' : 'password'"
+              placeholder="Şifrenizi giriniz"
+              [(ngModel)]="password"
+              name="password"
+            />
+
+            <button type="button" class="eye-btn" (click)="togglePassword()">
+              👁
+            </button>
+          </div>
+        </div>
+
+        <button type="submit" class="login-btn">
+          Giriş Yap
+        </button>
+
+        <a href="#" class="forgot-link">
+          Şifremi Unuttum
+        </a>
+        <div class="social-links">
+  <a href="https://www.instagram.com/kastamonu.unv/" target="_blank" class="social-link instagram" aria-label="Instagram">
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5zm0 2a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3H7zm10.5 1.5a1 1 0 1 1 0 2 1 1 0 0 1 0-2zM12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"/>
+    </svg>
+  </a>
+
+  <a href="https://www.facebook.com/kastamonuunvmedya" target="_blank" class="social-link facebook" aria-label="Facebook">
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M13.5 22v-8h2.7l.4-3h-3.1V9.1c0-.9.3-1.6 1.7-1.6H17V4.8c-.3 0-1.3-.1-2.4-.1-2.4 0-4.1 1.5-4.1 4.2V11H8v3h2.5v8h3z"/>
+    </svg>
+  </a>
+
+  <a href="https://x.com/kastamonuunv" target="_blank" class="social-link x" aria-label="X">
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M18.9 2H22l-6.8 7.8L23 22h-6.2l-4.9-6.5L6.2 22H3l7.3-8.3L1 2h6.3l4.5 6 5.1-6zm-1.1 18h1.7L6.3 3.9H4.5L17.8 20z"/>
+    </svg>
+  </a>
+
+  <a href="https://www.youtube.com/channel/UCMDxvR4rH6c0ZgrX7jo0wMA" target="_blank" class="social-link youtube" aria-label="YouTube">
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M23 12s0-3.2-.4-4.7c-.2-.8-.8-1.4-1.6-1.6C19.5 5.3 12 5.3 12 5.3s-7.5 0-9 .4c-.8.2-1.4.8-1.6 1.6C1 8.8 1 12 1 12s0 3.2.4 4.7c.2.8.8 1.4 1.6 1.6 1.5.4 9 .4 9 .4s7.5 0 9-.4c.8-.2 1.4-.8 1.6-1.6.4-1.5.4-4.7.4-4.7zM10 15.5v-7l6 3.5-6 3.5z"/>
+    </svg>
+  </a>
+</div>
+
+      </form>
+    </section>
+
+    <footer class="footer-links">
+      <a href="#">DESTEK</a>
+      <a href="#">GİZLİLİK POLİTİKASI</a>
+      <a href="#">KURUMSAL SİTE</a>
+    </footer>
+
+  </main>
+</div>

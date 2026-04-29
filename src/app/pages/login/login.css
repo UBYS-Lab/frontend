@@ -1,0 +1,473 @@
+.login-page {
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  position: relative;
+  overflow: hidden;
+
+  background:
+    linear-gradient(
+      rgba(248, 250, 252, 0.84),
+      rgba(248, 250, 252, 0.88)
+    ),
+    url("/kampus-bg.jpg");
+
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 18px;
+}
+
+.login-page::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+
+  background:
+    radial-gradient(circle at 20% 20%, rgba(0, 85, 168, 0.18), transparent 30%),
+    radial-gradient(circle at 80% 80%, rgba(220, 38, 38, 0.12), transparent 32%);
+
+  pointer-events: none;
+}
+
+.login-page::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+
+  backdrop-filter: blur(1.5px);
+  background: rgba(255, 255, 255, 0.05);
+
+  pointer-events: none;
+}
+
+.login-container {
+  width: 100%;
+  max-width: 410px;
+
+  position: relative;
+  z-index: 2;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.brand-area {
+  width: 100%;
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.university-logo {
+  width: 84px;
+  height: 84px;
+  object-fit: contain;
+  display: block;
+  margin: 0 auto 10px;
+}
+
+.brand-area h1 {
+  margin: 0;
+  color: #0055a8;
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-align: center;
+}
+
+.brand-area p {
+  margin: 6px 0 0;
+  color: #475467;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.4px;
+  text-align: center;
+}
+
+.login-card {
+  width: 100%;
+
+  background-color: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+
+  border-radius: 20px;
+  padding: 30px 32px 26px;
+
+  box-shadow:
+    0 20px 48px rgba(15, 23, 42, 0.14),
+    0 4px 10px rgba(15, 23, 42, 0.06);
+}
+
+.card-header {
+  text-align: center;
+  margin-bottom: 22px;
+}
+
+.card-header h2 {
+  margin: 0 0 8px;
+  color: #101828;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.card-header p {
+  margin: 0 auto;
+  max-width: 300px;
+  color: #667085;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.login-form {
+  width: 100%;
+}
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 7px;
+  color: #667085;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.3px;
+  text-align: left;
+}
+
+.input-box {
+  width: 100%;
+  height: 46px;
+
+  background-color: #eef1f5;
+  border: 1px solid transparent;
+  border-radius: 11px;
+
+  display: flex;
+  align-items: center;
+
+  padding: 0 13px;
+  transition: 0.2s ease;
+}
+
+.input-box:focus-within {
+  background-color: #ffffff;
+  border-color: #0055a8;
+  box-shadow: 0 0 0 3px rgba(0, 85, 168, 0.10);
+}
+
+.input-icon {
+  margin-right: 10px;
+  font-size: 15px;
+  color: #667085;
+}
+
+.input-box input {
+  flex: 1;
+  width: 100%;
+  min-width: 0;
+
+  border: none;
+  outline: none;
+  background: transparent;
+
+  color: #1d2939;
+
+  font-size: 14px;
+  font-weight: 500;
+  font-family: inherit;
+}
+
+.input-box input::placeholder {
+  color: #98a2b3;
+  font-weight: 400;
+}
+
+.eye-btn {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 15px;
+  opacity: 0.65;
+}
+
+.login-btn {
+  width: 100%;
+  height: 46px;
+
+  margin-top: 5px;
+
+  border: none;
+  border-radius: 11px;
+
+  background: linear-gradient(135deg, #0055a8, #006bd6);
+  color: #ffffff;
+
+  font-size: 14px;
+  font-weight: 700;
+  font-family: inherit;
+
+  cursor: pointer;
+
+  box-shadow: 0 11px 22px rgba(0, 85, 168, 0.27);
+  transition: 0.2s ease;
+}
+
+.login-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 26px rgba(0, 85, 168, 0.32);
+}
+
+.forgot-link {
+  display: block;
+  margin-top: 18px;
+  color: #0055a8;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+  text-decoration: none;
+}
+
+.forgot-link:hover {
+  text-decoration: underline;
+}
+
+.footer-links {
+  width: 100%;
+  margin-top: 20px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+
+  text-align: center;
+  flex-wrap: wrap;
+}
+
+.footer-links a {
+  color: #475467;
+  font-size: 8.5px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-decoration: none;
+}
+
+.footer-links a:hover {
+  color: #0055a8;
+}
+
+/* Telefon */
+@media (max-width: 520px) {
+  .login-page {
+    padding: 14px;
+  }
+
+  .login-container {
+    max-width: 370px;
+  }
+
+  .university-logo {
+    width: 74px;
+    height: 74px;
+    margin-bottom: 8px;
+  }
+
+  .brand-area {
+    margin-bottom: 14px;
+  }
+
+  .brand-area h1 {
+    font-size: 24px;
+  }
+
+  .brand-area p {
+    font-size: 9px;
+    letter-spacing: 1.1px;
+  }
+
+  .login-card {
+    border-radius: 18px;
+    padding: 26px 22px 24px;
+  }
+
+  .card-header {
+    margin-bottom: 20px;
+  }
+
+  .card-header h2 {
+    font-size: 21px;
+  }
+
+  .card-header p {
+    font-size: 12px;
+    line-height: 1.45;
+  }
+
+  .form-group {
+    margin-bottom: 14px;
+  }
+
+  .input-box {
+    height: 44px;
+  }
+
+  .login-btn {
+    height: 44px;
+  }
+
+  .forgot-link {
+    margin-top: 15px;
+    font-size: 11.5px;
+  }
+
+  .footer-links {
+    margin-top: 16px;
+    gap: 12px;
+  }
+
+  .footer-links a {
+    font-size: 8px;
+  }
+}
+
+/* Ekran yüksekliği azsa biraz daha sıkıştır */
+@media (max-height: 700px) {
+  .login-container {
+    max-width: 390px;
+  }
+
+  .university-logo {
+    width: 70px;
+    height: 70px;
+  }
+
+  .brand-area {
+    margin-bottom: 10px;
+  }
+
+  .brand-area h1 {
+    font-size: 23px;
+  }
+
+  .brand-area p {
+    font-size: 9px;
+    margin-top: 4px;
+  }
+
+  .login-card {
+    padding: 24px 26px 22px;
+  }
+
+  .card-header {
+    margin-bottom: 18px;
+  }
+
+  .card-header h2 {
+    font-size: 20px;
+  }
+
+  .card-header p {
+    font-size: 12px;
+  }
+
+  .form-group {
+    margin-bottom: 13px;
+  }
+
+  .input-box {
+    height: 42px;
+  }
+
+  .login-btn {
+    height: 42px;
+  }
+
+  .forgot-link {
+    margin-top: 14px;
+  }
+
+  .footer-links {
+    margin-top: 14px;
+  }
+}
+
+/* Çok küçük yüksekliklerde footer gizlenir */
+@media (max-height: 620px) {
+  .footer-links {
+    display: none;
+  }
+
+  .university-logo {
+    width: 62px;
+    height: 62px;
+  }
+
+  .login-card {
+    padding: 22px;
+  }
+}
+.social-links {
+  margin-top: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 22px;
+}
+
+.social-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: transparent;
+  border: none;
+  text-decoration: none;
+
+  transition: 0.2s ease;
+}
+
+.social-link svg {
+  width: 22px;
+  height: 22px;
+  fill: #667085;
+  transition: 0.2s ease;
+}
+
+.social-link:hover {
+  transform: translateY(-2px);
+}
+
+.social-link.instagram:hover svg {
+  fill: #e1306c;
+}
+
+.social-link.facebook:hover svg {
+  fill: #1877f2;
+}
+
+.social-link.x:hover svg {
+  fill: #000000;
+}
+
+.social-link.youtube:hover svg {
+  fill: #ff0000;
+} 
+.social-links {
+  gap: 18px;
+}
+
+.social-link svg {
+  width: 20px;
+  height: 20px;
+}
