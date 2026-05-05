@@ -50,8 +50,12 @@
           </div>
         </div>
 
-        <button type="submit" class="login-btn">
-          Giriş Yap
+        @if (errorMessage) {
+          <div class="error-message">{{ errorMessage }}</div>
+        }
+
+        <button type="submit" class="login-btn" [disabled]="isLoading">
+          {{ isLoading ? 'Giriş yapılıyor...' : 'Giriş Yap' }}
         </button>
 
         <a href="#" class="forgot-link">
