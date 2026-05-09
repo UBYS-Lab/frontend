@@ -1,0 +1,40 @@
+@if (student) {
+  <div class="dashboard-page">
+    <header class="dash-header">
+      <div class="dash-brand">
+        <span class="dash-title">UBYS</span>
+        <span class="dash-sub">Kastamonu Üniversitesi</span>
+      </div>
+      <button class="logout-btn" (click)="logout()">Çıkış Yap</button>
+    </header>
+
+    <main class="dash-main">
+      <div class="welcome-card">
+        <div class="avatar">{{ student.full_name[0] }}</div>
+        <div class="welcome-text">
+          <h2>Hoş Geldiniz, {{ student.full_name }}</h2>
+          <p class="student-no">{{ student.student_no }}</p>
+        </div>
+      </div>
+
+      <div class="info-grid">
+        <div class="info-card">
+          <span class="info-label">E-posta</span>
+          <span class="info-value">{{ student.email }}</span>
+        </div>
+        <div class="info-card">
+          <span class="info-label">Durum</span>
+          <span class="info-value status-badge">{{ student.status }}</span>
+        </div>
+        <div class="info-card">
+          <span class="info-label">Dönem</span>
+          <span class="info-value">{{ student.semester }}. Dönem</span>
+        </div>
+        <div class="info-card">
+          <span class="info-label">GNO</span>
+          <span class="info-value">{{ student.gpa | number:'1.2-2' }}</span>
+        </div>
+      </div>
+    </main>
+  </div>
+}
