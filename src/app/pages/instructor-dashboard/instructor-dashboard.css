@@ -1,0 +1,96 @@
+/* Instructor dashboard — shares base with student, adds instructor-specific overrides */
+.layout { display: flex; height: 100vh; overflow: hidden; background: #f0f2f5; font-family: 'Inter', Arial, sans-serif; }
+
+/* ── Sidebar ───────────────────────────────────────────────── */
+.sidebar { width: 220px; min-width: 220px; background: #0c2461; display: flex; flex-direction: column; overflow: hidden; }
+.sidebar-brand { display: flex; align-items: center; gap: 10px; padding: 20px 16px 16px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+.brand-icon { width: 36px; height: 36px; background: rgba(255,255,255,0.12); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.brand-icon svg { width: 18px; height: 18px; stroke: #fff; }
+.brand-name { margin: 0; color: #fff; font-size: 15px; font-weight: 800; letter-spacing: 0.5px; }
+.brand-sub { margin: 2px 0 0; color: rgba(255,255,255,0.5); font-size: 9px; font-weight: 700; letter-spacing: 1.2px; }
+.sidebar-nav { flex: 1; padding: 12px 10px; display: flex; flex-direction: column; gap: 2px; overflow-y: auto; }
+.nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 8px; border: none; background: transparent; color: rgba(255,255,255,0.6); font-size: 13px; font-weight: 500; font-family: inherit; cursor: pointer; text-align: left; transition: 0.15s; width: 100%; }
+.nav-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+.nav-item:hover { background: rgba(255,255,255,0.08); color: #fff; }
+.nav-item.active { background: rgba(255,255,255,0.14); color: #fff; font-weight: 600; border-left: 3px solid #fff; }
+.nav-badge { margin-left: auto; background: #ef4444; color: #fff; font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 10px; }
+.sidebar-bottom { padding: 10px; border-top: 1px solid rgba(255,255,255,0.08); display: flex; flex-direction: column; gap: 2px; }
+.bottom-item { font-size: 12px; }
+
+/* ── Main wrap ─────────────────────────────────────────────── */
+.main-wrap { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+/* ── Topbar ────────────────────────────────────────────────── */
+.topbar { display: flex; align-items: center; gap: 16px; padding: 0 24px; height: 60px; background: #fff; border-bottom: 1px solid #e4e7ec; flex-shrink: 0; }
+.search-box { flex: 1; display: flex; align-items: center; gap: 8px; background: #f5f7fa; border-radius: 8px; padding: 0 12px; height: 38px; max-width: 480px; }
+.search-box svg { width: 15px; height: 15px; stroke: #98a2b3; flex-shrink: 0; }
+.search-box input { border: none; background: transparent; outline: none; font-size: 13px; color: #344054; width: 100%; font-family: inherit; }
+.search-box input::placeholder { color: #98a2b3; }
+.topbar-actions { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+.icon-btn { position: relative; width: 36px; height: 36px; background: #f5f7fa; border: none; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+.icon-btn svg { width: 16px; height: 16px; stroke: #667085; }
+.badge { position: absolute; top: 5px; right: 5px; width: 14px; height: 14px; background: #ef4444; color: #fff; font-size: 9px; font-weight: 700; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+.user-chip { display: flex; align-items: center; gap: 8px; padding: 4px 10px 4px 6px; background: #f5f7fa; border-radius: 24px; cursor: pointer; }
+.user-avatar { width: 30px; height: 30px; border-radius: 50%; background: #0c2461; color: #fff; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+.user-name { margin: 0; font-size: 12px; font-weight: 600; color: #101828; }
+.user-id   { margin: 0; font-size: 10px; color: #667085; }
+
+/* ── Content ───────────────────────────────────────────────── */
+.content { flex: 1; overflow-y: auto; padding: 24px; display: flex; flex-direction: column; gap: 20px; }
+
+/* ── Welcome row ───────────────────────────────────────────── */
+.welcome-row { display: flex; align-items: flex-start; gap: 16px; }
+.welcome-left { flex: 1; }
+.panel-label { margin: 0 0 4px; font-size: 11px; font-weight: 700; letter-spacing: 1.2px; color: #667085; }
+.welcome-title { margin: 0 0 6px; font-size: 26px; font-weight: 800; color: #101828; }
+.welcome-sub { margin: 0; font-size: 13px; color: #667085; }
+.stat-boxes { display: flex; gap: 10px; }
+.stat-box { background: #fff; border: 1px solid #e4e7ec; border-radius: 12px; padding: 12px 18px; text-align: center; min-width: 80px; }
+.stat-box.warn { border-color: #fca5a5; background: #fff5f5; }
+.stat-box.warn .stat-value { color: #dc2626; }
+.stat-label { margin: 0 0 4px; font-size: 10px; font-weight: 700; letter-spacing: 1px; color: #667085; }
+.stat-value { margin: 0; font-size: 22px; font-weight: 800; color: #101828; }
+
+/* ── Quick grid ────────────────────────────────────────────── */
+.quick-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.quick-card { background: #fff; border: 1px solid #e4e7ec; border-radius: 12px; padding: 18px; cursor: pointer; transition: 0.15s; position: relative; }
+.quick-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08); transform: translateY(-1px); }
+.quick-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 10px; }
+.quick-icon svg { width: 22px; height: 22px; }
+.quick-icon.blue   { background: #eff6ff; } .quick-icon.blue svg   { stroke: #2563eb; }
+.quick-icon.green  { background: #f0fdf4; } .quick-icon.green svg  { stroke: #16a34a; }
+.quick-icon.orange { background: #fff7ed; } .quick-icon.orange svg { stroke: #ea580c; }
+.quick-icon.purple { background: #faf5ff; } .quick-icon.purple svg { stroke: #9333ea; }
+.quick-icon.gray   { background: #f8fafc; } .quick-icon.gray svg   { stroke: #64748b; }
+.quick-icon.teal   { background: #f0fdfa; } .quick-icon.teal svg   { stroke: #0d9488; }
+.quick-badge { position: absolute; top: 14px; right: 14px; padding: 3px 8px; font-size: 9px; font-weight: 700; border-radius: 20px; letter-spacing: 0.5px; }
+.warn-badge { background: #fef2f2; color: #dc2626; }
+.quick-title { margin: 0 0 4px; font-size: 13px; font-weight: 700; color: #101828; }
+.quick-sub   { margin: 0; font-size: 11px; color: #667085; }
+
+/* ── Bottom row ────────────────────────────────────────────── */
+.bottom-row { display: grid; grid-template-columns: 1fr 320px; gap: 16px; }
+.schedule-card, .pending-card { background: #fff; border: 1px solid #e4e7ec; border-radius: 14px; padding: 20px; }
+.card-head { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 16px; }
+.card-head h3 { margin: 0; font-size: 15px; font-weight: 700; color: #101828; }
+.card-sub { margin: 4px 0 0; font-size: 12px; color: #667085; }
+.see-all { background: transparent; border: none; font-size: 12px; font-weight: 600; color: #1a56db; cursor: pointer; font-family: inherit; }
+.warn-count { background: #ef4444; color: #fff; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 10px; }
+
+.schedule-item { display: flex; align-items: center; gap: 14px; padding: 12px 0; border-top: 1px solid #f0f2f5; }
+.schedule-time { min-width: 48px; text-align: right; }
+.time-start { margin: 0; font-size: 13px; font-weight: 700; color: #101828; }
+.time-end   { margin: 2px 0 0; font-size: 11px; color: #98a2b3; }
+.schedule-info { flex: 1; }
+.schedule-code   { margin: 0 0 3px; font-size: 13px; font-weight: 600; color: #101828; }
+.schedule-detail { margin: 0; font-size: 11px; color: #667085; }
+.status-badge.active { padding: 4px 10px; background: #dbeafe; color: #1d4ed8; font-size: 10px; font-weight: 700; border-radius: 20px; white-space: nowrap; }
+
+.pending-item { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-top: 1px solid #f0f2f5; }
+.pending-avatar { width: 32px; height: 32px; border-radius: 50%; background: #e0e7ff; color: #4338ca; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.pending-info { flex: 1; }
+.pending-name   { margin: 0 0 2px; font-size: 13px; font-weight: 600; color: #101828; }
+.pending-detail { margin: 0; font-size: 11px; color: #667085; }
+.enter-btn { padding: 5px 12px; background: #0c2461; color: #fff; border: none; border-radius: 6px; font-size: 11px; font-weight: 600; font-family: inherit; cursor: pointer; }
+.enter-btn:hover { background: #1a3a7a; }
+.empty-msg { margin: 16px 0; font-size: 13px; color: #98a2b3; text-align: center; }

@@ -3,33 +3,43 @@ import { HttpClient } from '@angular/common/http';
 import { isPlatformBrowser } from '@angular/common';
 import { tap } from 'rxjs/operators';
 
-export interface StudentInfo {
-  student_no: string;
+export interface UserInfo {
+  role: 'student' | 'instructor' | 'manager';
+  identifier: string;
   full_name: string;
-  email: string;
-  department_id: number;
-  status: string;
-  semester: number;
-  gpa: number;
+  email: string | null;
+  // student
+  department_id?: number;
+  class_year?: number;
+  gpa?: number;
+  status?: string;
+  total_credits?: number;
+  active_semester?: string;
+  // instructor
+  title?: string;
+  // manager
+  unit_type?: string;
+  unit_id?: string | number;
+  manager_role?: string;
 }
 
 interface LoginResponse {
   success: boolean;
-  student: StudentInfo;
+  student: UserInfo;
 }
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly API_URL = 'http://127.0.0.1:8001/api';
-  private readonly STORAGE_KEY = 'ubys_student';
+  private readonly STORAGE_KEY = 'ubys_user';
 
   private http = inject(HttpClient);
   private platformId = inject(PLATFORM_ID);
 
-  login(studentNo: string, password: string) {
+  login(identifier: string, password: string) {
     return this.http
       .post<LoginResponse>(`${this.API_URL}/auth/login`, {
-        student_no: studentNo,
+        student_no: identifier,
         password,
       })
       .pipe(
@@ -52,9 +62,9 @@ export class AuthService {
     return !!localStorage.getItem(this.STORAGE_KEY);
   }
 
-  getStudent(): StudentInfo | null {
+  getUser(): UserInfo | null {
     if (!isPlatformBrowser(this.platformId)) return null;
     const data = localStorage.getItem(this.STORAGE_KEY);
-    return data ? (JSON.parse(data) as StudentInfo) : null;
+    return data ? (JSON.parse(data) as UserInfo) : null;
   }
 }

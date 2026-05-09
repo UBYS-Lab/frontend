@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { Router } from '@angular/router';
-import { AuthService, StudentInfo } from '../../services/auth.service';
+import { AuthService, UserInfo } from '../../services/auth.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -11,12 +11,12 @@ import { AuthService, StudentInfo } from '../../services/auth.service';
   styleUrl: './dashboard.css',
 })
 export class DashboardComponent implements OnInit {
-  student: StudentInfo | null = null;
+  student: UserInfo | null = null;
 
   constructor(private authService: AuthService, private router: Router) {}
 
   ngOnInit(): void {
-    this.student = this.authService.getStudent();
+    this.student = this.authService.getUser();
   }
 
   logout() {
