@@ -36,7 +36,10 @@ export class LoginComponent {
     this.authService.login(this.studentNumber, this.password).subscribe({
       next: () => {
         this.isLoading = false;
-        this.router.navigate(['/dashboard']);
+        const user = this.authService.getUser();
+        if (user?.role === 'instructor') this.router.navigate(['/instructor/dashboard']);
+        else if (user?.role === 'manager') this.router.navigate(['/manager/dashboard']);
+        else this.router.navigate(['/student/dashboard']);
       },
       error: (err) => {
         this.isLoading = false;
