@@ -1,0 +1,184 @@
+@if (user) {
+  <div class="layout">
+    <!-- ─── SIDEBAR ─────────────────────────────────────── -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        </div>
+        <div>
+          <p class="brand-name">UBYS</p>
+          <p class="brand-sub">YÖNETİCİ PORTALI</p>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <button class="nav-item" [class.active]="activeNav==='panel'" (click)="setNav('panel')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+          Panel
+        </button>
+        <button class="nav-item" [class.active]="activeNav==='ogrenciler'" (click)="setNav('ogrenciler')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+          Öğrenci Yönetimi
+        </button>
+        <button class="nav-item" [class.active]="activeNav==='akademisyenler'" (click)="setNav('akademisyenler')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          Akademisyen Yönetimi
+        </button>
+        <button class="nav-item" [class.active]="activeNav==='dersler'" (click)="setNav('dersler')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+          Ders Yönetimi
+        </button>
+        <button class="nav-item" [class.active]="activeNav==='duyurular'" (click)="setNav('duyurular')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+          Duyuru Yönetimi
+        </button>
+        <button class="nav-item" [class.active]="activeNav==='raporlar'" (click)="setNav('raporlar')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6"  y1="20" x2="6"  y2="14"/></svg>
+          Raporlar
+        </button>
+      </nav>
+
+      <div class="sidebar-bottom">
+        <button class="nav-item bottom-item" [class.active]="activeNav==='ayarlar'" (click)="setNav('ayarlar')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+          Sistem Ayarları
+        </button>
+        <button class="nav-item bottom-item" (click)="logout()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Çıkış Yap
+        </button>
+      </div>
+    </aside>
+
+    <!-- ─── MAIN ──────────────────────────────────────────── -->
+    <div class="main-wrap">
+      <header class="topbar">
+        <div class="search-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" placeholder="Öğrenci, akademisyen veya ders ara..." />
+        </div>
+        <div class="topbar-actions">
+          <button class="icon-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+          </button>
+          <div class="user-chip">
+            <div class="user-avatar manager-avatar">{{ user.full_name[0] }}</div>
+            <div class="user-info">
+              <p class="user-name">{{ user.full_name }}</p>
+              <p class="user-id">{{ roleLabel }}</p>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main class="content">
+        <!-- Welcome row -->
+        <div class="welcome-row">
+          <div class="welcome-left">
+            <p class="panel-label">YÖNETİCİ PANELİ</p>
+            <h1 class="welcome-title">Hoş geldiniz, {{ roleLabel }} {{ firstName }}.</h1>
+            <p class="welcome-sub">2024-2025 Bahar Dönemi · Kastamonu Üniversitesi</p>
+          </div>
+          <div class="new-ann-btn-wrap">
+            <button class="new-ann-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Duyuru Yayınla
+            </button>
+          </div>
+        </div>
+
+        <!-- Stats row -->
+        <div class="stats-grid">
+          @for (s of statCards; track s.key) {
+            <div class="stat-card" [class]="'stat-card-' + s.color">
+              <p class="stat-label">{{ s.label }}</p>
+              <p class="stat-value">{{ loading ? '—' : stats[s.key] }}</p>
+            </div>
+          }
+        </div>
+
+        <!-- Quick actions -->
+        <div class="quick-grid">
+          <div class="quick-card">
+            <div class="quick-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></div>
+            <p class="quick-title">Öğrenci Yönetimi</p>
+            <p class="quick-sub">Kayıt, durum ve bilgiler</p>
+          </div>
+          <div class="quick-card">
+            <div class="quick-icon purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+            <p class="quick-title">Akademisyen Yönetimi</p>
+            <p class="quick-sub">Kadro ve atamalar</p>
+          </div>
+          <div class="quick-card">
+            <div class="quick-icon teal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg></div>
+            <p class="quick-title">Ders Yönetimi</p>
+            <p class="quick-sub">Katalog ve açılan dersler</p>
+          </div>
+          <div class="quick-card">
+            <div class="quick-icon orange"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
+            <p class="quick-title">Duyuru Yayınla</p>
+            <p class="quick-sub">Tüm kullanıcılara duyuru</p>
+          </div>
+          <div class="quick-card">
+            <div class="quick-icon green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
+            <p class="quick-title">Raporlar</p>
+            <p class="quick-sub">Akademik istatistikler</p>
+          </div>
+          <div class="quick-card">
+            <div class="quick-icon gray"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></div>
+            <p class="quick-title">Sistem Ayarları</p>
+            <p class="quick-sub">Dönem ve yapılandırma</p>
+          </div>
+        </div>
+
+        <!-- Bottom row -->
+        <div class="bottom-row">
+          <!-- Recent activity -->
+          <div class="activity-card">
+            <div class="card-head">
+              <h3>Son İşlemler</h3>
+              <button class="see-all">Tümünü Gör →</button>
+            </div>
+            @if (recentActivities.length === 0) {
+              <p class="empty-msg">Henüz işlem yok.</p>
+            } @else {
+              @for (act of recentActivities; track act.time + act.text) {
+                <div class="activity-item">
+                  <div class="act-dot" [class]="'act-dot-' + act.type"></div>
+                  <div class="act-info">
+                    <p class="act-text">{{ act.text }}</p>
+                  </div>
+                  <p class="act-time">{{ act.time }}</p>
+                </div>
+              }
+            }
+          </div>
+
+          <!-- Announcements -->
+          <div class="announce-card">
+            <div class="card-head">
+              <h3>Aktif Duyurular</h3>
+              <button class="new-mini-btn">+ Yeni</button>
+            </div>
+            @if (announcements.length === 0) {
+              <p class="empty-msg">Duyuru bulunamadı.</p>
+            } @else {
+              @for (ann of announcements; track ann.title) {
+                <div class="ann-item">
+                  <div class="ann-left">
+                    <span class="priority-dot" [class.important]="ann.priority==='high'"></span>
+                    <div>
+                      <p class="ann-title">{{ ann.title }}</p>
+                      <p class="ann-date">{{ ann.date }}</p>
+                    </div>
+                  </div>
+                </div>
+              }
+            }
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+}

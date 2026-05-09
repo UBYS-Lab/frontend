@@ -13,7 +13,7 @@
         <div class="avatar">{{ student.full_name[0] }}</div>
         <div class="welcome-text">
           <h2>Hoş Geldiniz, {{ student.full_name }}</h2>
-          <p class="student-no">{{ student.student_no }}</p>
+          <p class="student-no">{{ student.identifier }}</p>
         </div>
       </div>
 
@@ -28,7 +28,7 @@
         </div>
         <div class="info-card">
           <span class="info-label">Dönem</span>
-          <span class="info-value">{{ student.semester }}. Dönem</span>
+          <span class="info-value">{{ student.class_year }}. Sınıf</span>
         </div>
         <div class="info-card">
           <span class="info-label">GNO</span>

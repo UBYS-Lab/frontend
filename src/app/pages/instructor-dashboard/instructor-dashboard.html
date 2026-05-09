@@ -1,0 +1,193 @@
+@if (user) {
+  <div class="layout">
+    <!-- ─── SIDEBAR ─────────────────────────────────────── -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        </div>
+        <div>
+          <p class="brand-name">UBYS</p>
+          <p class="brand-sub">AKADEMİSYEN PORTALI</p>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <button class="nav-item" [class.active]="activeNav==='panel'" (click)="setNav('panel')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+          Panel
+        </button>
+        <button class="nav-item" [class.active]="activeNav==='derslerim'" (click)="setNav('derslerim')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+          Derslerim
+        </button>
+        <button class="nav-item" [class.active]="activeNav==='ogrenciler'" (click)="setNav('ogrenciler')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+          Öğrenci Listeleri
+        </button>
+        <button class="nav-item" [class.active]="activeNav==='notgirisi'" (click)="setNav('notgirisi')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          Not Girişi
+          <span class="nav-badge">{{ pendingGrades.length }}</span>
+        </button>
+        <button class="nav-item" [class.active]="activeNav==='devamsizlik'" (click)="setNav('devamsizlik')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          Devamsızlık Takibi
+        </button>
+        <button class="nav-item" [class.active]="activeNav==='duyurular'" (click)="setNav('duyurular')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+          Duyurular
+        </button>
+      </nav>
+
+      <div class="sidebar-bottom">
+        <button class="nav-item bottom-item" [class.active]="activeNav==='ayarlar'" (click)="setNav('ayarlar')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+          Ayarlar
+        </button>
+        <button class="nav-item bottom-item" (click)="logout()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Çıkış Yap
+        </button>
+      </div>
+    </aside>
+
+    <!-- ─── MAIN ──────────────────────────────────────────── -->
+    <div class="main-wrap">
+      <header class="topbar">
+        <div class="search-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" placeholder="Öğrenci, ders veya duyuru ara..." />
+        </div>
+        <div class="topbar-actions">
+          <button class="icon-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+            @if (pendingGrades.length > 0) { <span class="badge">{{ pendingGrades.length }}</span> }
+          </button>
+          <div class="user-chip">
+            <div class="user-avatar">{{ user.full_name[0] }}</div>
+            <div class="user-info">
+              <p class="user-name">{{ user.full_name }}</p>
+              <p class="user-id">{{ user.title ?? 'Öğretim Üyesi' }}</p>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main class="content">
+        <!-- Welcome row -->
+        <div class="welcome-row">
+          <div class="welcome-left">
+            <p class="panel-label">AKADEMİSYEN PANELİ</p>
+            <h1 class="welcome-title">Hoş geldiniz, {{ user.title }} {{ firstName }}.</h1>
+            <p class="welcome-sub">2024-2025 Bahar Dönemi · {{ courses.length }} aktif ders · {{ totalStudents }} öğrenci</p>
+          </div>
+          <div class="stat-boxes">
+            <div class="stat-box">
+              <p class="stat-label">AKTİF DERS</p>
+              <p class="stat-value">{{ courses.length }}</p>
+            </div>
+            <div class="stat-box">
+              <p class="stat-label">ÖĞRENCİ</p>
+              <p class="stat-value">{{ totalStudents }}</p>
+            </div>
+            <div class="stat-box warn">
+              <p class="stat-label">BEKLEYEN NOT</p>
+              <p class="stat-value">{{ pendingGrades.length }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick actions -->
+        <div class="quick-grid">
+          <div class="quick-card">
+            <div class="quick-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+            <p class="quick-title">Ders Programım</p>
+            <p class="quick-sub">Haftalık ders akışı</p>
+          </div>
+          <div class="quick-card">
+            <div class="quick-icon orange"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>
+            <span class="quick-badge warn-badge">{{ pendingGrades.length }} Bekliyor</span>
+            <p class="quick-title">Not Girişi</p>
+            <p class="quick-sub">Vize ve final notları</p>
+          </div>
+          <div class="quick-card">
+            <div class="quick-icon teal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+            <p class="quick-title">Devamsızlık Takibi</p>
+            <p class="quick-sub">Yoklama ve devam durumu</p>
+          </div>
+          <div class="quick-card">
+            <div class="quick-icon purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></div>
+            <p class="quick-title">Öğrenci Listesi</p>
+            <p class="quick-sub">Ders bazlı öğrenci listesi</p>
+          </div>
+          <div class="quick-card">
+            <div class="quick-icon green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
+            <p class="quick-title">Duyurular</p>
+            <p class="quick-sub">Duyuru ekle ve yönet</p>
+          </div>
+          <div class="quick-card">
+            <div class="quick-icon gray"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
+            <p class="quick-title">Transkript Onayı</p>
+            <p class="quick-sub">Öğrenci transkript talepleri</p>
+          </div>
+        </div>
+
+        <!-- Bottom row -->
+        <div class="bottom-row">
+          <!-- Today's schedule -->
+          <div class="schedule-card">
+            <div class="card-head">
+              <div>
+                <h3>Bugünkü Derslerim</h3>
+                <p class="card-sub">{{ activeSemester }}</p>
+              </div>
+              <button class="see-all">Tamamını Gör →</button>
+            </div>
+            @if (loading) {
+              <p class="empty-msg">Yükleniyor...</p>
+            } @else if (todaySchedule().length === 0) {
+              <p class="empty-msg">Bugün ders yok.</p>
+            } @else {
+              @for (item of todaySchedule(); track item.code) {
+                <div class="schedule-item">
+                  <div class="schedule-time">
+                    <p class="time-start">{{ item.start }}</p>
+                    <p class="time-end">{{ item.end }}</p>
+                  </div>
+                  <div class="schedule-info">
+                    <p class="schedule-code">{{ item.code }} – {{ item.name }}</p>
+                    <p class="schedule-detail">Şube {{ item.section }} • {{ item.room }} • {{ item.count }} öğrenci</p>
+                  </div>
+                  <span class="status-badge active">AKTİF</span>
+                </div>
+              }
+            }
+          </div>
+
+          <!-- Pending grades -->
+          <div class="pending-card">
+            <div class="card-head">
+              <h3>Bekleyen Not Girişleri</h3>
+              <span class="warn-count">{{ pendingGrades.length }}</span>
+            </div>
+            @if (pendingGrades.length === 0) {
+              <p class="empty-msg">Bekleyen not girisi yok.</p>
+            } @else {
+              @for (pg of pendingGrades; track pg.student_no + pg.course_code) {
+                <div class="pending-item">
+                  <div class="pending-avatar">{{ pg.name[0] }}</div>
+                  <div class="pending-info">
+                    <p class="pending-name">{{ pg.name }}</p>
+                    <p class="pending-detail">{{ pg.course_code }} · Şube {{ pg.section }}</p>
+                  </div>
+                  <button class="enter-btn">Not Gir</button>
+                </div>
+              }
+            }
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+}
