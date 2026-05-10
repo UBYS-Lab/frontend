@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { DecimalPipe } from '@angular/common';
+import { Component, OnInit, PLATFORM_ID, inject, ChangeDetectorRef } from '@angular/core';
+import { DecimalPipe, isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService, UserInfo } from '../../services/auth.service';
 import { DashboardService, ScheduleItem, AnnouncementItem } from '../../services/dashboard.service';
@@ -20,6 +20,9 @@ export class StudentDashboardComponent implements OnInit {
   scheduleItems: ScheduleItem[] = [];
   activeSemester = '';
 
+  private platformId = inject(PLATFORM_ID);
+  private cdr = inject(ChangeDetectorRef);
+
   constructor(
     private authService: AuthService,
     private dashService: DashboardService,
@@ -27,6 +30,7 @@ export class StudentDashboardComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
     this.user = this.authService.getUser();
     if (!this.user) return;
 
@@ -35,12 +39,13 @@ export class StudentDashboardComponent implements OnInit {
         this.scheduleItems = res.schedule ?? [];
         this.activeSemester = res.semester ?? '';
         this.loading = false;
+        this.cdr.detectChanges();
       },
-      error: () => { this.loading = false; },
+      error: () => { this.loading = false; this.cdr.detectChanges(); },
     });
 
     this.dashService.getStudentAnnouncements(this.user.department_id ?? 0).subscribe({
-      next: (res) => { this.announcements = res.announcements ?? []; },
+      next: (res) => { this.announcements = res.announcements ?? []; this.cdr.detectChanges(); },
       error: () => {},
     });
   }
@@ -83,6 +88,10 @@ export class StudentDashboardComponent implements OnInit {
   }
 
   setNav(nav: string) { this.activeNav = nav; }
+
+  goToCourseRegistration() {
+    this.router.navigate(['/student/course-registration']);
+  }
 
   logout() {
     this.authService.logout();

@@ -59,6 +59,35 @@ export interface ActivityItem {
   date: string;
 }
 
+export interface AvailableCourse {
+  course_code: string;
+  course_name: string;
+  credits: number;
+  ects: number;
+  type: string;
+  class_year: number;
+  section: string;
+  instructor: string;
+  instructor_id: string;
+  capacity: number;
+  enrolled_count: number;
+  schedule: { day: string; start_time: string; end_time: string; classroom: string }[];
+  already_enrolled: boolean;
+}
+
+export interface RegistrationRequest {
+  id: string;
+  student_no: string;
+  student_name: string;
+  department_id: number;
+  courses: { course_code: string; course_name: string; credits: number; section: string }[];
+  total_credits: number;
+  status: 'pending' | 'approved' | 'rejected';
+  feedback: string | null;
+  submitted_at: string;
+  reviewed_at: string | null;
+}
+
 @Injectable({ providedIn: 'root' })
 export class DashboardService {
   private readonly API = 'http://127.0.0.1:8001/api';
@@ -77,6 +106,18 @@ export class DashboardService {
     return this.http.get<any>(`${this.API}/student/grades`, { params: { student_no: studentNo } });
   }
 
+  getAvailableCourses(studentNo: string): Observable<{ success: boolean; semester: string; credits_allowed: number; existing_request: any; courses: AvailableCourse[] }> {
+    return this.http.get<any>(`${this.API}/student/available-courses`, { params: { student_no: studentNo } });
+  }
+
+  submitRegistrationRequest(studentNo: string, courseCodes: string[]): Observable<{ success: boolean; message: string; request_id: string }> {
+    return this.http.post<any>(`${this.API}/student/registration-request`, { student_no: studentNo, course_codes: courseCodes });
+  }
+
+  getRegistrationStatus(studentNo: string): Observable<{ success: boolean; request: RegistrationRequest | null }> {
+    return this.http.get<any>(`${this.API}/student/registration-status`, { params: { student_no: studentNo } });
+  }
+
   // ── Instructor ───────────────────────────────────────────────
   getInstructorCourses(instructorId: string): Observable<{ success: boolean; semester: string; courses: CourseItem[] }> {
     return this.http.get<any>(`${this.API}/instructor/courses`, { params: { instructor_id: instructorId } });
@@ -88,6 +129,14 @@ export class DashboardService {
 
   getInstructorAnnouncements(): Observable<{ success: boolean; announcements: AnnouncementItem[] }> {
     return this.http.get<any>(`${this.API}/instructor/announcements`);
+  }
+
+  getRegistrationRequests(instructorId: string): Observable<{ success: boolean; requests: RegistrationRequest[] }> {
+    return this.http.get<any>(`${this.API}/instructor/registration-requests`, { params: { instructor_id: instructorId } });
+  }
+
+  reviewRegistrationRequest(requestId: string, instructorId: string, action: 'approve' | 'reject', feedback: string): Observable<{ success: boolean; message: string }> {
+    return this.http.post<any>(`${this.API}/instructor/registration-requests/${requestId}/review`, { instructor_id: instructorId, action, feedback });
   }
 
   // ── Manager ──────────────────────────────────────────────────
