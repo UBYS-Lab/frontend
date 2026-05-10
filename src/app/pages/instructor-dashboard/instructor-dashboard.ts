@@ -24,6 +24,17 @@ export class InstructorDashboardComponent implements OnInit {
   feedbackMap: Record<string, string> = {};
   reviewingId: string | null = null;
 
+  // Yoklama
+  attCourse: CourseItem | null = null;
+  attSession: any = null;
+  attSessionLoading = false;
+  attStudentStatus: Record<string, 'present' | 'absent' | 'late'> = {};
+  attQrExpiry: Date | null = null;
+  attQrTimer = '';
+  private attTimerRef: any = null;
+  attCourseReport: any[] = [];
+  attReportLoading = false;
+
   // Not girişi
   selectedGradeCourse: CourseItem | null = null;
   gradeStudents: CourseGradeStudent[] = [];
@@ -116,7 +127,78 @@ export class InstructorDashboardComponent implements OnInit {
 
   setNav(nav: string) {
     this.activeNav = nav;
-    if (nav !== 'notlar') { this.selectedGradeCourse = null; this.gradeStudents = []; }
+    if (nav !== 'notlar')    { this.selectedGradeCourse = null; this.gradeStudents = []; }
+    if (nav !== 'devamsizlik') { this.attSession = null; this.attCourse = null; clearInterval(this.attTimerRef); }
+  }
+
+  startSession(course: CourseItem): void {
+    if (!this.user || this.attSessionLoading) return;
+    this.attSessionLoading = true;
+    this.dashService.createAttendanceSession(this.user.identifier, course.course_code, course.section).subscribe({
+      next: (res) => {
+        this.attCourse  = course;
+        this.attSession = res;
+        this.attQrExpiry = new Date(res.expires_at);
+        this.attStudentStatus = {};
+        this.attSessionLoading = false;
+        this.startQrTimer();
+        this.refreshSession(res.session_id);
+        this.cdr.detectChanges();
+      },
+      error: () => { this.attSessionLoading = false; this.cdr.detectChanges(); },
+    });
+  }
+
+  refreshSession(sessionId: string): void {
+    this.dashService.getSessionStatus(sessionId).subscribe({
+      next: (res) => {
+        this.attSession = res;
+        const all = [
+          ...res.present_students.map((n: string) => [n, 'present']),
+          ...res.absent_students.map((n: string) => [n, 'absent']),
+          ...res.late_students.map((n: string) => [n, 'late']),
+        ];
+        this.attStudentStatus = Object.fromEntries(all);
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  markAtt(studentNo: string, status: 'present' | 'absent' | 'late'): void {
+    if (!this.attSession) return;
+    this.attStudentStatus[studentNo] = status;
+    this.dashService.markStudent(this.attSession.session_id, studentNo, status).subscribe();
+  }
+
+  closeAttSession(): void {
+    if (!this.attSession) return;
+    this.dashService.closeSession(this.attSession.session_id).subscribe({
+      next: () => {
+        clearInterval(this.attTimerRef);
+        this.attSession.is_closed = true;
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  loadAttReport(course: CourseItem): void {
+    this.attReportLoading = true;
+    this.dashService.getCourseAttendanceReport(course.course_code, course.section).subscribe({
+      next: (res) => { this.attCourseReport = res.sessions ?? []; this.attReportLoading = false; this.cdr.detectChanges(); },
+      error: () => { this.attReportLoading = false; this.cdr.detectChanges(); },
+    });
+  }
+
+  private startQrTimer(): void {
+    clearInterval(this.attTimerRef);
+    this.attTimerRef = setInterval(() => {
+      if (!this.attQrExpiry) return;
+      const diff = Math.max(0, this.attQrExpiry.getTime() - Date.now());
+      const m = Math.floor(diff / 60000);
+      const s = Math.floor((diff % 60000) / 1000);
+      this.attQrTimer = diff > 0 ? `${m}:${s.toString().padStart(2,'0')}` : 'Süresi doldu';
+      this.cdr.detectChanges();
+    }, 1000);
   }
 
   selectGradeCourse(course: CourseItem): void {
