@@ -25,10 +25,10 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
           Öğrenci Listeleri
         </button>
-        <button class="nav-item" [class.active]="activeNav==='notgirisi'" (click)="setNav('notgirisi')">
+        <button class="nav-item" [class.active]="activeNav==='notlar'" (click)="setNav('notlar')">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
           Not Girişi
-          <span class="nav-badge">{{ pendingGrades.length }}</span>
+          @if (pendingGrades.length > 0) { <span class="nav-badge">{{ pendingGrades.length }}</span> }
         </button>
         <button class="nav-item" [class.active]="activeNav==='devamsizlik'" (click)="setNav('devamsizlik')">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
@@ -80,6 +80,7 @@
       </header>
 
       <main class="content">
+        @if (activeNav === 'panel') {
         <!-- Welcome row -->
         <div class="welcome-row">
           <div class="welcome-left">
@@ -192,6 +193,196 @@
             }
           </div>
         </div>
+        } <!-- /panel -->
+
+        <!-- ─── DERSLERİM ─────────────────────────────────── -->
+        @if (activeNav === 'derslerim') {
+          <div class="section-header">
+            <h2>Derslerim</h2>
+            <span class="section-sub">{{ activeSemester }} · {{ courses.length }} aktif ders</span>
+          </div>
+          @if (courses.length === 0) {
+            <p class="empty-msg">Bu dönem aktif ders bulunamadı.</p>
+          } @else {
+            <div class="grade-course-list">
+              @for (c of courses; track c.course_code) {
+                <div class="grade-course-card" style="cursor:default">
+                  <div class="gc-left">
+                    <span class="gc-code">{{ c.course_code }}</span>
+                    <p class="gc-name">{{ c.course_name }}</p>
+                    <p class="gc-meta">Şube {{ c.section }} · {{ c.enrolled_count }} / {{ c.capacity }} öğrenci</p>
+                  </div>
+                  <div class="gc-right">
+                    @for (slot of c.schedule; track slot.day) {
+                      <span style="font-size:11px;color:#667085;">{{ slot.day }} {{ slot.start_time }}-{{ slot.end_time }} {{ slot.classroom }}</span>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        }
+
+        <!-- ─── ÖĞRENCİ LİSTELERİ ────────────────────────── -->
+        @if (activeNav === 'ogrenciler') {
+          <div class="section-header">
+            <h2>Öğrenci Listeleri</h2>
+            <span class="section-sub">Bekleyen not girişi olan öğrenciler</span>
+          </div>
+          @if (pendingGrades.length === 0) {
+            <p class="empty-msg">Bekleyen not girişi yok.</p>
+          } @else {
+            <div class="grade-table-wrap">
+              <div class="grade-table-scroll">
+                <table class="grade-table">
+                  <thead>
+                    <tr>
+                      <th>Öğrenci No</th>
+                      <th>Ad Soyad</th>
+                      <th>Ders Kodu</th>
+                      <th>Şube</th>
+                      <th>İşlem</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (pg of pendingGrades; track pg.student_no + pg.course_code) {
+                      <tr>
+                        <td class="td-no">{{ pg.student_no }}</td>
+                        <td class="td-name">{{ pg.name }}</td>
+                        <td class="td-code">{{ pg.course_code }}</td>
+                        <td class="td-center">{{ pg.section }}</td>
+                        <td class="td-center"><button class="enter-btn" (click)="setNav('notlar')">Not Gir</button></td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          }
+        }
+
+        <!-- ─── DEVAMSIZLIK ───────────────────────────────── -->
+        @if (activeNav === 'devamsizlik') {
+          <div class="section-header">
+            <h2>Devamsızlık Takibi</h2>
+            <span class="section-sub">{{ activeSemester }}</span>
+          </div>
+          <p class="empty-msg">Bu bölüm yakında aktif olacak.</p>
+        }
+
+        <!-- ─── DUYURULAR ─────────────────────────────────── -->
+        @if (activeNav === 'duyurular') {
+          <div class="section-header">
+            <h2>Duyurular</h2>
+            <span class="section-sub">Aktif duyurular</span>
+          </div>
+          <p class="empty-msg">Duyuru bulunamadı.</p>
+        }
+
+        <!-- ─── NOT GİRİŞİ ──────────────────────────────────── -->
+        @if (activeNav === 'notlar') {
+          <div class="section-header">
+            <h2>Not Girişi</h2>
+            <span class="section-sub">{{ activeSemester }} · {{ pendingGrades.length }} öğrenci bekliyor</span>
+          </div>
+
+          @if (!selectedGradeCourse) {
+            <div class="grade-course-list">
+              @for (c of courses; track c.course_code) {
+                <div class="grade-course-card" (click)="selectGradeCourse(c)">
+                  <div class="gc-left">
+                    <span class="gc-code">{{ c.course_code }}</span>
+                    <p class="gc-name">{{ c.course_name }}</p>
+                    <p class="gc-meta">Şube {{ c.section }} · {{ c.enrolled_count }} öğrenci</p>
+                  </div>
+                  <div class="gc-right">
+                    <span class="gc-pending-badge" [class.has-pending]="hasPendingForCourse(c.course_code)">
+                      Not Gir →
+                    </span>
+                  </div>
+                </div>
+              }
+            </div>
+          } @else {
+            <div class="grade-table-wrap">
+              <div class="grade-table-header">
+                <div>
+                  <button class="back-btn" (click)="selectedGradeCourse = null; gradeStudents = []">
+                    ← Geri
+                  </button>
+                  <h3>{{ selectedGradeCourse.course_code }} — {{ selectedGradeCourse.course_name }}</h3>
+                  <p class="grade-table-sub">{{ gradeStudents.length }} öğrenci · Vize %30 · Final %50 · Ödev %20</p>
+                </div>
+                <div class="grade-save-area">
+                  @if (gradeSaveMsg) { <span class="grade-save-msg">{{ gradeSaveMsg }}</span> }
+                  <button class="btn-save-grades" [disabled]="gradeSaving" (click)="saveGrades()">
+                    {{ gradeSaving ? 'Kaydediliyor...' : 'Notları Kaydet' }}
+                  </button>
+                </div>
+              </div>
+
+              <div class="grade-table-scroll">
+                <table class="grade-table">
+                  <thead>
+                    <tr>
+                      <th>Öğrenci No</th>
+                      <th>Ad Soyad</th>
+                      <th>Vize (0-100)</th>
+                      <th>Final (0-100)</th>
+                      <th>Ödev (0-100)</th>
+                      <th>Ham Puan</th>
+                      <th>Harf Notu</th>
+                      <th>Durum</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (s of gradeStudents; track s.student_no) {
+                      <tr [class.row-pass]="s.graded && s.is_passing" [class.row-fail]="s.graded && !s.is_passing">
+                        <td class="td-no">{{ s.student_no }}</td>
+                        <td class="td-name">{{ s.student_name }}</td>
+                        <td>
+                          <input class="grade-input" type="number" min="0" max="100"
+                            [(ngModel)]="gradeInputs[s.student_no].midterm"
+                            placeholder="—" />
+                        </td>
+                        <td>
+                          <input class="grade-input" type="number" min="0" max="100"
+                            [(ngModel)]="gradeInputs[s.student_no].final"
+                            placeholder="—" />
+                        </td>
+                        <td>
+                          <input class="grade-input" type="number" min="0" max="100"
+                            [(ngModel)]="gradeInputs[s.student_no].homework"
+                            placeholder="—" />
+                        </td>
+                        <td class="td-raw">
+                          @if (gradeInputs[s.student_no]?.midterm !== null && gradeInputs[s.student_no]?.final !== null) {
+                            {{ (gradeInputs[s.student_no].midterm! * 0.3 + gradeInputs[s.student_no].final! * 0.5 + (gradeInputs[s.student_no].homework ?? 0) * 0.2) | number:'1.0-0' }}
+                          } @else { — }
+                        </td>
+                        <td>
+                          <span class="letter-badge" [class.pass]="isPassing(s.student_no)" [class.fail]="!isPassing(s.student_no) && calcPreview(s.student_no) !== '—'">
+                            {{ calcPreview(s.student_no) }}
+                          </span>
+                        </td>
+                        <td>
+                          @if (s.graded) {
+                            <span class="status-chip" [class.chip-pass]="s.is_passing" [class.chip-fail]="!s.is_passing">
+                              {{ s.is_passing ? 'Geçti' : 'Kaldı' }}
+                            </span>
+                          } @else {
+                            <span class="status-chip chip-pending">Girilmedi</span>
+                          }
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          }
+        }
+
         <!-- ─── KAYIT ONAYLARI ─────────────────────────────── -->
         @if (activeNav === 'kayitonay') {
           <div class="section-header">
@@ -241,6 +432,22 @@
               }
             </div>
           }
+        }
+
+        <!-- ─── AYARLAR ───────────────────────────────────── -->
+        @if (activeNav === 'ayarlar') {
+          <div class="section-header">
+            <h2>Ayarlar</h2>
+            <span class="section-sub">Profil ve sistem tercihleri</span>
+          </div>
+          <div style="background:#fff;border:1px solid #e4e7ec;border-radius:12px;padding:24px;max-width:480px;">
+            <p style="margin:0 0 8px;font-size:13px;color:#667085;">Ad Soyad</p>
+            <p style="margin:0 0 18px;font-size:15px;font-weight:600;color:#101828;">{{ user.full_name }}</p>
+            <p style="margin:0 0 8px;font-size:13px;color:#667085;">Ünvan</p>
+            <p style="margin:0 0 18px;font-size:15px;font-weight:600;color:#101828;">{{ user.title ?? 'Öğretim Üyesi' }}</p>
+            <p style="margin:0 0 8px;font-size:13px;color:#667085;">Kullanıcı ID</p>
+            <p style="margin:0;font-size:15px;font-weight:600;color:#101828;">{{ user.identifier }}</p>
+          </div>
         }
 
       </main>

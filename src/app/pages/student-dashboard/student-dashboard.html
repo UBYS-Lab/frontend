@@ -80,6 +80,7 @@
 
       <!-- Content -->
       <main class="content">
+        @if (activeNav === 'panel') {
         <!-- Welcome row -->
         <div class="welcome-row">
           <div class="welcome-left">
@@ -210,6 +211,266 @@
             <button class="all-ann-btn">Tüm Duyuruları Gör</button>
           </div>
         </div>
+        } <!-- /panel -->
+
+        <!-- ─── HAFTALİK PROGRAM ────────────────────────── -->
+        @if (activeNav === 'program') {
+          <div class="section-header">
+            <h2>Haftalık Ders Programı</h2>
+            <span class="section-sub">{{ activeSemester }}</span>
+          </div>
+          @if (loading) {
+            <p class="empty-msg">Yükleniyor...</p>
+          } @else if (scheduleItems.length === 0) {
+            <p class="empty-msg">Kayıtlı ders bulunamadı.</p>
+          } @else {
+            <div class="tr-semester-block">
+              <table class="tr-table">
+                <thead>
+                  <tr>
+                    <th>Ders Kodu</th>
+                    <th>Ders Adı</th>
+                    <th>Öğretim Görevlisi</th>
+                    <th>Gün</th>
+                    <th>Saat</th>
+                    <th>Derslik</th>
+                    <th>Durum</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (item of scheduleItems; track item.course_code) {
+                    @for (slot of item.schedule; track slot.day + slot.start_time) {
+                      <tr>
+                        <td class="td-code">{{ item.course_code }}</td>
+                        <td class="td-cname">{{ item.course_name }}</td>
+                        <td class="td-center">{{ item.instructor }}</td>
+                        <td class="td-center">{{ slot.day }}</td>
+                        <td class="td-center">{{ slot.start_time }} – {{ slot.end_time }}</td>
+                        <td class="td-center">{{ slot.classroom }}</td>
+                        <td class="td-center"><span class="tr-status pass">Kayıtlı</span></td>
+                      </tr>
+                    }
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        }
+
+        <!-- ─── DERS KATALOĞU ────────────────────────────── -->
+        @if (activeNav === 'katalog') {
+          <div class="section-header">
+            <h2>Ders Kataloğu</h2>
+            <span class="section-sub">Bu dönem kayıtlı derslerim</span>
+          </div>
+          @if (scheduleItems.length === 0) {
+            <p class="empty-msg">Kayıtlı ders yok.</p>
+          } @else {
+            <div class="grade-course-list">
+              @for (item of scheduleItems; track item.course_code) {
+                <div class="grade-course-card" style="cursor:default">
+                  <div class="gc-left">
+                    <span class="gc-code">{{ item.course_code }}</span>
+                    <p class="gc-name">{{ item.course_name }}</p>
+                    <p class="gc-meta">{{ item.instructor }} · {{ item.status }}</p>
+                  </div>
+                  <span class="tr-status pass">Kayıtlı</span>
+                </div>
+              }
+            </div>
+          }
+        }
+
+        <!-- ─── MALİ İŞLEMLER ────────────────────────────── -->
+        @if (activeNav === 'mali') {
+          <div class="section-header">
+            <h2>Mali İşlemler</h2>
+            <span class="section-sub">Harç ve ödeme bilgileri</span>
+          </div>
+          <p class="empty-msg">Bu bölüm yakında aktif olacak.</p>
+        }
+
+        <!-- ─── KAMPÜS YAŞAMI ─────────────────────────────── -->
+        @if (activeNav === 'kampus') {
+          <div class="section-header">
+            <h2>Kampüs Yaşamı</h2>
+            <span class="section-sub">Etkinlikler ve duyurular</span>
+          </div>
+          @if (announcements.length === 0) {
+            <p class="empty-msg">Duyuru bulunamadı.</p>
+          } @else {
+            @for (ann of announcements; track ann.title) {
+              <div class="ann-item" style="border:1px solid #e4e7ec; border-radius:10px; padding:14px 18px; margin-bottom:12px; background:#fff;">
+                <p class="ann-date">{{ ann.date }}</p>
+                <p class="ann-title">{{ ann.title }}</p>
+                <p class="ann-excerpt">{{ ann.content }}</p>
+              </div>
+            }
+          }
+        }
+
+        <!-- ─── NOTLAR / TRANSKRİPT ──────────────────────── -->
+        @if (activeNav === 'notlar') {
+          <div class="tr-page-header">
+            <div>
+              <h2 class="tr-page-title">Akademik Transkript</h2>
+              <p class="tr-page-sub">{{ transcript?.active_semester ?? activeSemester }}</p>
+            </div>
+          </div>
+
+          @if (transcriptLoading) {
+            <div class="tr-loading">
+              <div class="tr-spinner"></div>
+              <p>Transkript yükleniyor...</p>
+            </div>
+          } @else if (!transcript || transcript.semesters.length === 0) {
+            <p class="empty-msg">Henüz not kaydı bulunmuyor.</p>
+          } @else {
+
+            <!-- ── Üst özet şeridi ── -->
+            <div class="tr-hero">
+              <div class="tr-hero-gano" [class.hero-high]="transcript.gano >= 3.0" [class.hero-mid]="transcript.gano >= 2.0 && transcript.gano < 3.0" [class.hero-low]="transcript.gano < 2.0">
+                <span class="hero-label">GANO</span>
+                <span class="hero-value">{{ transcript.gano | number:'1.2-2' }}</span>
+                <span class="hero-max">/ 4.00</span>
+              </div>
+              <div class="tr-hero-stats">
+                <div class="hero-stat">
+                  <span class="hs-value">{{ transcript.total_credits }}</span>
+                  <span class="hs-label">Toplam Kredi</span>
+                </div>
+                <div class="hero-divider"></div>
+                <div class="hero-stat">
+                  <span class="hs-value">{{ transcript.semesters.length }}</span>
+                  <span class="hs-label">Dönem</span>
+                </div>
+                @if (transcript.repeat_semesters.length > 0) {
+                  <div class="hero-divider"></div>
+                  <div class="hero-stat warn-stat">
+                    <span class="hs-value warn-v">{{ transcript.repeat_semesters.length }}</span>
+                    <span class="hs-label">Dönem Tekrarı</span>
+                  </div>
+                }
+              </div>
+            </div>
+
+            <!-- ── Uyarı banner ── -->
+            @if (transcript.repeat_semesters.length > 0) {
+              <div class="tr-warn-banner">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                <span><strong>Dönem Tekrarı:</strong> {{ transcript.repeat_semesters[0].semester_name }} döneminde YANO ortalamanız 2.00'ın altında. Akademik danışmanınızla görüşünüz.</span>
+              </div>
+            }
+
+            <!-- ── Aktif dönem / bekleyen notlar ── -->
+            @if (transcript.pending_courses.length > 0) {
+              <div class="tr-pending-box">
+                <div class="tr-pending-head">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                  <span>{{ transcript.active_semester }} — Not girişi beklenen dersler</span>
+                </div>
+                <div class="tr-pending-chips">
+                  @for (c of transcript.pending_courses; track c.course_code) {
+                    <span class="tr-chip">
+                      <strong>{{ c.course_code }}</strong> {{ c.course_name }}
+                      <em>{{ c.credits }} kr</em>
+                    </span>
+                  }
+                </div>
+              </div>
+            }
+
+            <!-- ── Dönem kartları ── -->
+            @for (sem of transcript.semesters; track sem.semester_name) {
+              <div class="sem-card" [class.sem-fail]="sem.needs_repeat">
+
+                <!-- Kart başlığı -->
+                <div class="sem-head">
+                  <div class="sem-head-left">
+                    <span class="sem-name">{{ sem.semester_name }}</span>
+                    @if (sem.needs_repeat) {
+                      <span class="sem-warn-tag">⚠ Dönem Tekrarı</span>
+                    }
+                  </div>
+                  <div class="sem-head-right">
+                    <div class="sem-pill" [class.pill-high]="sem.yano >= 3.0" [class.pill-mid]="sem.yano >= 2.0 && sem.yano < 3.0" [class.pill-low]="sem.yano < 2.0">
+                      YANO {{ sem.yano | number:'1.2-2' }}
+                    </div>
+                    <span class="sem-meta">{{ sem.credits_taken }} kredi</span>
+                    <span class="sem-meta pass-c">{{ sem.passed_count }} geçti</span>
+                    @if (sem.failed_count > 0) {
+                      <span class="sem-meta fail-c">{{ sem.failed_count }} kaldı</span>
+                    }
+                  </div>
+                </div>
+
+                <!-- Not tablosu -->
+                <div class="sem-table-wrap">
+                  <table class="sem-table">
+                    <thead>
+                      <tr>
+                        <th>Kod</th>
+                        <th>Ders Adı</th>
+                        <th>Kr</th>
+                        <th>Vize</th>
+                        <th>Final</th>
+                        <th>Ödev</th>
+                        <th>Puan</th>
+                        <th>Harf</th>
+                        <th>Durum</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (c of sem.courses; track c.course_code) {
+                        <tr [class.row-fail]="c.is_passing === false">
+                          <td class="col-code">{{ c.course_code }}</td>
+                          <td class="col-name">{{ c.course_name }}</td>
+                          <td class="col-num">{{ c.credits }}</td>
+                          <td class="col-num">{{ c.midterm ?? '—' }}</td>
+                          <td class="col-num">{{ c.final ?? '—' }}</td>
+                          <td class="col-num">{{ c.homework ?? '—' }}</td>
+                          <td class="col-num"><strong>{{ c.raw_score ?? '—' }}</strong></td>
+                          <td class="col-num">
+                            <span class="grade-badge" [class]="gradeClass(c.letter_grade)">
+                              {{ c.letter_grade ?? '—' }}
+                            </span>
+                          </td>
+                          <td class="col-num">
+                            @if (c.is_passing === true) {
+                              <span class="status-tag s-pass">Geçti</span>
+                            } @else if (c.is_passing === false) {
+                              <span class="status-tag s-fail">Kaldı</span>
+                            } @else {
+                              <span class="status-tag s-pend">Bekliyor</span>
+                            }
+                          </td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+
+              </div>
+            }
+          }
+        }
+
+        <!-- ─── AYARLAR ───────────────────────────────────── -->
+        @if (activeNav === 'ayarlar') {
+          <div class="section-header">
+            <h2>Ayarlar</h2>
+            <span class="section-sub">Hesap bilgileri</span>
+          </div>
+          <div style="background:#fff;border:1px solid #e4e7ec;border-radius:12px;padding:24px;max-width:480px;">
+            <p style="margin:0 0 8px;font-size:13px;color:#667085;">Ad Soyad</p>
+            <p style="margin:0 0 18px;font-size:15px;font-weight:600;color:#101828;">{{ user.full_name }}</p>
+            <p style="margin:0 0 8px;font-size:13px;color:#667085;">Öğrenci No</p>
+            <p style="margin:0 0 18px;font-size:15px;font-weight:600;color:#101828;">{{ user.identifier }}</p>
+            <p style="margin:0 0 8px;font-size:13px;color:#667085;">Dönem</p>
+            <p style="margin:0;font-size:15px;font-weight:600;color:#101828;">{{ activeSemester }}</p>
+          </div>
+        }
+
       </main>
     </div>
   </div>
