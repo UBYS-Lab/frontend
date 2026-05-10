@@ -3,7 +3,7 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService, UserInfo } from '../../services/auth.service';
-import { DashboardService, CourseItem, PendingGradeItem, RegistrationRequest } from '../../services/dashboard.service';
+import { DashboardService, CourseItem, PendingGradeItem, RegistrationRequest, CourseGradeStudent } from '../../services/dashboard.service';
 
 @Component({
   selector: 'app-instructor-dashboard',
@@ -23,6 +23,13 @@ export class InstructorDashboardComponent implements OnInit {
   registrationRequests: RegistrationRequest[] = [];
   feedbackMap: Record<string, string> = {};
   reviewingId: string | null = null;
+
+  // Not girişi
+  selectedGradeCourse: CourseItem | null = null;
+  gradeStudents: CourseGradeStudent[] = [];
+  gradeInputs: Record<string, { midterm: number | null; final: number | null; homework: number | null }> = {};
+  gradeSaving = false;
+  gradeSaveMsg = '';
 
   private platformId = inject(PLATFORM_ID);
   private cdr = inject(ChangeDetectorRef);
@@ -95,6 +102,10 @@ export class InstructorDashboardComponent implements OnInit {
     return result.sort((a, b) => a.start.localeCompare(b.start));
   }
 
+  hasPendingForCourse(courseCode: string): boolean {
+    return this.pendingGrades.some(p => p.course_code === courseCode);
+  }
+
   get firstName(): string {
     return this.user?.full_name?.split(' ').slice(-1)[0] ?? '';
   }
@@ -103,7 +114,86 @@ export class InstructorDashboardComponent implements OnInit {
     return this.courses.reduce((s, c) => s + c.enrolled_count, 0);
   }
 
-  setNav(nav: string) { this.activeNav = nav; }
+  setNav(nav: string) {
+    this.activeNav = nav;
+    if (nav !== 'notlar') { this.selectedGradeCourse = null; this.gradeStudents = []; }
+  }
+
+  selectGradeCourse(course: CourseItem): void {
+    this.selectedGradeCourse = course;
+    this.gradeStudents = [];
+    this.gradeInputs = {};
+    this.gradeSaveMsg = '';
+    this.dashService.getCourseGrades(this.user!.identifier, course.course_code).subscribe({
+      next: (res) => {
+        this.gradeStudents = res.students ?? [];
+        this.gradeStudents.forEach(s => {
+          this.gradeInputs[s.student_no] = {
+            midterm:  s.midterm,
+            final:    s.final,
+            homework: s.homework,
+          };
+        });
+        this.cdr.detectChanges();
+      },
+      error: () => {},
+    });
+  }
+
+  calcPreview(studentNo: string): string {
+    const inp = this.gradeInputs[studentNo];
+    if (!inp || inp.midterm === null || inp.final === null) return '—';
+    const hw  = inp.homework ?? 0;
+    const raw = Math.round(inp.midterm * 0.3 + inp.final * 0.5 + hw * 0.2);
+    if (raw >= 90) return 'AA';
+    if (raw >= 85) return 'BA';
+    if (raw >= 75) return 'BB';
+    if (raw >= 70) return 'CB';
+    if (raw >= 60) return 'CC';
+    if (raw >= 55) return 'DC';
+    if (raw >= 50) return 'DD';
+    if (raw >= 30) return 'FD';
+    return 'FF';
+  }
+
+  isPassing(studentNo: string): boolean {
+    const l = this.calcPreview(studentNo);
+    return ['AA','BA','BB','CB','CC'].includes(l);
+  }
+
+  saveGrades(): void {
+    if (!this.selectedGradeCourse || this.gradeSaving) return;
+    const payload = this.gradeStudents
+      .filter(s => this.gradeInputs[s.student_no]?.midterm !== null && this.gradeInputs[s.student_no]?.final !== null)
+      .map(s => ({
+        student_no: s.student_no,
+        midterm:    this.gradeInputs[s.student_no].midterm!,
+        final:      this.gradeInputs[s.student_no].final!,
+        homework:   this.gradeInputs[s.student_no].homework ?? 0,
+      }));
+
+    if (payload.length === 0) { this.gradeSaveMsg = 'Kaydedilecek not yok.'; return; }
+
+    this.gradeSaving = true;
+    this.gradeSaveMsg = '';
+    this.dashService.batchEnterGrades(
+      this.user!.identifier,
+      this.selectedGradeCourse.course_code,
+      this.activeSemester,
+      payload
+    ).subscribe({
+      next: (res) => {
+        this.gradeSaving = false;
+        this.gradeSaveMsg = `${res.count} öğrencinin notu kaydedildi.`;
+        this.selectGradeCourse(this.selectedGradeCourse!);
+        this.dashService.getPendingGrades(this.user!.identifier).subscribe({
+          next: (r) => { this.pendingGrades = r.pending ?? []; this.cdr.detectChanges(); }
+        });
+        this.cdr.detectChanges();
+      },
+      error: () => { this.gradeSaving = false; this.gradeSaveMsg = 'Hata oluştu.'; this.cdr.detectChanges(); },
+    });
+  }
 
   logout() {
     this.authService.logout();

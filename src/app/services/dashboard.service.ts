@@ -75,6 +75,52 @@ export interface AvailableCourse {
   already_enrolled: boolean;
 }
 
+export interface TranscriptCourse {
+  course_code: string;
+  course_name: string;
+  credits: number;
+  midterm: number | null;
+  final: number | null;
+  homework: number | null;
+  raw_score: number | null;
+  letter_grade: string | null;
+  grade_point: number | null;
+  is_passing: boolean | null;
+}
+
+export interface SemesterSummary {
+  semester_name: string;
+  courses: TranscriptCourse[];
+  yano: number;
+  credits_taken: number;
+  passed_count: number;
+  failed_count: number;
+  needs_repeat: boolean;
+}
+
+export interface Transcript {
+  student: { student_no: string; full_name: string; department_id: number; class_year: number; status: string };
+  semesters: SemesterSummary[];
+  gano: number;
+  total_credits: number;
+  repeat_semesters: SemesterSummary[];
+  pending_courses: { course_code: string; course_name: string; credits: number }[];
+  active_semester: string;
+}
+
+export interface CourseGradeStudent {
+  student_no: string;
+  student_name: string;
+  midterm: number | null;
+  final: number | null;
+  homework: number | null;
+  raw_score: number | null;
+  letter_grade: string | null;
+  grade_point: number | null;
+  is_passing: boolean | null;
+  graded: boolean;
+}
+
 export interface RegistrationRequest {
   id: string;
   student_no: string;
@@ -118,6 +164,10 @@ export class DashboardService {
     return this.http.get<any>(`${this.API}/student/registration-status`, { params: { student_no: studentNo } });
   }
 
+  getTranscript(studentNo: string): Observable<{ success: boolean } & Transcript> {
+    return this.http.get<any>(`${this.API}/student/transcript`, { params: { student_no: studentNo } });
+  }
+
   // ── Instructor ───────────────────────────────────────────────
   getInstructorCourses(instructorId: string): Observable<{ success: boolean; semester: string; courses: CourseItem[] }> {
     return this.http.get<any>(`${this.API}/instructor/courses`, { params: { instructor_id: instructorId } });
@@ -137,6 +187,14 @@ export class DashboardService {
 
   reviewRegistrationRequest(requestId: string, instructorId: string, action: 'approve' | 'reject', feedback: string): Observable<{ success: boolean; message: string }> {
     return this.http.post<any>(`${this.API}/instructor/registration-requests/${requestId}/review`, { instructor_id: instructorId, action, feedback });
+  }
+
+  getCourseGrades(instructorId: string, courseCode: string): Observable<{ success: boolean; course_code: string; course_name: string; credits: number; semester_name: string; students: CourseGradeStudent[] }> {
+    return this.http.get<any>(`${this.API}/instructor/course-grades`, { params: { instructor_id: instructorId, course_code: courseCode } });
+  }
+
+  batchEnterGrades(instructorId: string, courseCode: string, semesterName: string, grades: { student_no: string; midterm: number; final: number; homework: number }[]): Observable<{ success: boolean; count: number; results: any[] }> {
+    return this.http.post<any>(`${this.API}/instructor/course-grades/batch`, { instructor_id: instructorId, course_code: courseCode, semester_name: semesterName, grades });
   }
 
   // ── Manager ──────────────────────────────────────────────────

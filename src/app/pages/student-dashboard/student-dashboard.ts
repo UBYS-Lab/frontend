@@ -1,13 +1,13 @@
 import { Component, OnInit, PLATFORM_ID, inject, ChangeDetectorRef } from '@angular/core';
-import { DecimalPipe, isPlatformBrowser } from '@angular/common';
+import { DecimalPipe, isPlatformBrowser, CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService, UserInfo } from '../../services/auth.service';
-import { DashboardService, ScheduleItem, AnnouncementItem } from '../../services/dashboard.service';
+import { DashboardService, ScheduleItem, AnnouncementItem, Transcript, SemesterSummary } from '../../services/dashboard.service';
 
 @Component({
   selector: 'app-student-dashboard',
   standalone: true,
-  imports: [DecimalPipe],
+  imports: [DecimalPipe, CommonModule],
   templateUrl: './student-dashboard.html',
   styleUrl: './student-dashboard.css',
 })
@@ -19,6 +19,9 @@ export class StudentDashboardComponent implements OnInit {
   announcements: AnnouncementItem[] = [];
   scheduleItems: ScheduleItem[] = [];
   activeSemester = '';
+
+  transcript: Transcript | null = null;
+  transcriptLoading = false;
 
   private platformId = inject(PLATFORM_ID);
   private cdr = inject(ChangeDetectorRef);
@@ -87,7 +90,31 @@ export class StudentDashboardComponent implements OnInit {
     return this.user?.full_name?.split(' ')[0] ?? '';
   }
 
-  setNav(nav: string) { this.activeNav = nav; }
+  setNav(nav: string) {
+    this.activeNav = nav;
+    if (nav === 'notlar' && !this.transcript && !this.transcriptLoading) {
+      this.loadTranscript();
+    }
+  }
+
+  loadTranscript(): void {
+    if (!this.user) return;
+    this.transcriptLoading = true;
+    this.dashService.getTranscript(this.user.identifier).subscribe({
+      next: (res) => {
+        this.transcript = res;
+        this.transcriptLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: () => { this.transcriptLoading = false; this.cdr.detectChanges(); },
+    });
+  }
+
+  gradeClass(letter: string | null): string {
+    if (!letter) return '';
+    if (['AA','BA','BB','CB','CC'].includes(letter)) return 'grade-pass';
+    return 'grade-fail';
+  }
 
   goToCourseRegistration() {
     this.router.navigate(['/student/course-registration']);

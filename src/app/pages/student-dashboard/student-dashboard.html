@@ -80,6 +80,7 @@
 
       <!-- Content -->
       <main class="content">
+        @if (activeNav === 'panel') {
         <!-- Welcome row -->
         <div class="welcome-row">
           <div class="welcome-left">
@@ -210,6 +211,233 @@
             <button class="all-ann-btn">Tüm Duyuruları Gör</button>
           </div>
         </div>
+        } <!-- /panel -->
+
+        <!-- ─── HAFTALİK PROGRAM ────────────────────────── -->
+        @if (activeNav === 'program') {
+          <div class="section-header">
+            <h2>Haftalık Ders Programı</h2>
+            <span class="section-sub">{{ activeSemester }}</span>
+          </div>
+          @if (loading) {
+            <p class="empty-msg">Yükleniyor...</p>
+          } @else if (scheduleItems.length === 0) {
+            <p class="empty-msg">Kayıtlı ders bulunamadı.</p>
+          } @else {
+            <div class="tr-semester-block">
+              <table class="tr-table">
+                <thead>
+                  <tr>
+                    <th>Ders Kodu</th>
+                    <th>Ders Adı</th>
+                    <th>Öğretim Görevlisi</th>
+                    <th>Gün</th>
+                    <th>Saat</th>
+                    <th>Derslik</th>
+                    <th>Durum</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (item of scheduleItems; track item.course_code) {
+                    @for (slot of item.schedule; track slot.day + slot.start_time) {
+                      <tr>
+                        <td class="td-code">{{ item.course_code }}</td>
+                        <td class="td-cname">{{ item.course_name }}</td>
+                        <td class="td-center">{{ item.instructor }}</td>
+                        <td class="td-center">{{ slot.day }}</td>
+                        <td class="td-center">{{ slot.start_time }} – {{ slot.end_time }}</td>
+                        <td class="td-center">{{ slot.classroom }}</td>
+                        <td class="td-center"><span class="tr-status pass">Kayıtlı</span></td>
+                      </tr>
+                    }
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        }
+
+        <!-- ─── DERS KATALOĞU ────────────────────────────── -->
+        @if (activeNav === 'katalog') {
+          <div class="section-header">
+            <h2>Ders Kataloğu</h2>
+            <span class="section-sub">Bu dönem kayıtlı derslerim</span>
+          </div>
+          @if (scheduleItems.length === 0) {
+            <p class="empty-msg">Kayıtlı ders yok.</p>
+          } @else {
+            <div class="grade-course-list">
+              @for (item of scheduleItems; track item.course_code) {
+                <div class="grade-course-card" style="cursor:default">
+                  <div class="gc-left">
+                    <span class="gc-code">{{ item.course_code }}</span>
+                    <p class="gc-name">{{ item.course_name }}</p>
+                    <p class="gc-meta">{{ item.instructor }} · {{ item.status }}</p>
+                  </div>
+                  <span class="tr-status pass">Kayıtlı</span>
+                </div>
+              }
+            </div>
+          }
+        }
+
+        <!-- ─── MALİ İŞLEMLER ────────────────────────────── -->
+        @if (activeNav === 'mali') {
+          <div class="section-header">
+            <h2>Mali İşlemler</h2>
+            <span class="section-sub">Harç ve ödeme bilgileri</span>
+          </div>
+          <p class="empty-msg">Bu bölüm yakında aktif olacak.</p>
+        }
+
+        <!-- ─── KAMPÜS YAŞAMI ─────────────────────────────── -->
+        @if (activeNav === 'kampus') {
+          <div class="section-header">
+            <h2>Kampüs Yaşamı</h2>
+            <span class="section-sub">Etkinlikler ve duyurular</span>
+          </div>
+          @if (announcements.length === 0) {
+            <p class="empty-msg">Duyuru bulunamadı.</p>
+          } @else {
+            @for (ann of announcements; track ann.title) {
+              <div class="ann-item" style="border:1px solid #e4e7ec; border-radius:10px; padding:14px 18px; margin-bottom:12px; background:#fff;">
+                <p class="ann-date">{{ ann.date }}</p>
+                <p class="ann-title">{{ ann.title }}</p>
+                <p class="ann-excerpt">{{ ann.content }}</p>
+              </div>
+            }
+          }
+        }
+
+        <!-- ─── NOTLAR / TRANSKRİPT ──────────────────────── -->
+        @if (activeNav === 'notlar') {
+          <div class="section-header">
+            <h2>Akademik Notlar &amp; Transkript</h2>
+            <span class="section-sub">{{ activeSemester }}</span>
+          </div>
+
+          @if (transcriptLoading) {
+            <p class="empty-msg">Yükleniyor...</p>
+          } @else if (!transcript || transcript.semesters.length === 0) {
+            <p class="empty-msg">Henüz not kaydı bulunmuyor.</p>
+          } @else {
+
+            <!-- GANO & özet kartlar -->
+            <div class="tr-summary-row">
+              <div class="tr-stat-card gano-card">
+                <p class="tr-stat-label">GANO</p>
+                <p class="tr-stat-value" [class.gano-high]="transcript.gano >= 3.0" [class.gano-mid]="transcript.gano >= 2.0 && transcript.gano < 3.0" [class.gano-low]="transcript.gano < 2.0">
+                  {{ transcript.gano | number:'1.2-2' }}
+                </p>
+                <p class="tr-stat-sub">/ 4.00</p>
+              </div>
+              <div class="tr-stat-card">
+                <p class="tr-stat-label">TOPLAM KREDİ</p>
+                <p class="tr-stat-value">{{ transcript.total_credits }}</p>
+                <p class="tr-stat-sub">tamamlandı</p>
+              </div>
+              <div class="tr-stat-card">
+                <p class="tr-stat-label">DÖNEM SAYISI</p>
+                <p class="tr-stat-value">{{ transcript.semesters.length }}</p>
+                <p class="tr-stat-sub">dönem</p>
+              </div>
+              @if (transcript.repeat_semesters.length > 0) {
+                <div class="tr-stat-card repeat-warn">
+                  <p class="tr-stat-label">DÖNEM TEKRARI</p>
+                  <p class="tr-stat-value warn-val">{{ transcript.repeat_semesters.length }}</p>
+                  <p class="tr-stat-sub">dönem (YANO &lt; 2.0)</p>
+                </div>
+              }
+            </div>
+
+            <!-- Dönem tekrarı uyarısı -->
+            @if (transcript.repeat_semesters.length > 0) {
+              <div class="repeat-alert">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                <div>
+                  <strong>Dönem Tekrarı Uyarısı</strong>
+                  <p>{{ transcript.repeat_semesters[0].semester_name }} döneminde YANO ortalamanız 2.00'ın altında. Akademik danışmanınızla görüşünüz.</p>
+                </div>
+              </div>
+            }
+
+            <!-- Aktif dönem bekleyen dersler -->
+            @if (transcript.pending_courses.length > 0) {
+              <div class="tr-pending-row">
+                <p class="tr-pending-title">{{ transcript.active_semester }} — Not Bekleyen Dersler</p>
+                <div class="tr-pending-tags">
+                  @for (c of transcript.pending_courses; track c.course_code) {
+                    <span class="tr-pending-tag">{{ c.course_code }} · {{ c.course_name }} <em>({{ c.credits }} kr)</em></span>
+                  }
+                </div>
+              </div>
+            }
+
+            <!-- Dönem dönem not tabloları -->
+            @for (sem of transcript.semesters; track sem.semester_name) {
+              <div class="tr-semester-block" [class.tr-repeat]="sem.needs_repeat">
+                <div class="tr-sem-header">
+                  <div class="tr-sem-left">
+                    <h3>{{ sem.semester_name }}</h3>
+                    @if (sem.needs_repeat) {
+                      <span class="tr-repeat-badge">DÖNEM TEKRARI</span>
+                    }
+                  </div>
+                  <div class="tr-sem-stats">
+                    <span>YANO: <strong [class.gano-high]="sem.yano >= 3.0" [class.gano-mid]="sem.yano >= 2.0 && sem.yano < 3.0" [class.gano-low]="sem.yano < 2.0">{{ sem.yano | number:'1.2-2' }}</strong></span>
+                    <span>{{ sem.credits_taken }} kredi</span>
+                    <span class="pass-count">{{ sem.passed_count }} geçti</span>
+                    @if (sem.failed_count > 0) { <span class="fail-count">{{ sem.failed_count }} kaldı</span> }
+                  </div>
+                </div>
+
+                <table class="tr-table">
+                  <thead>
+                    <tr>
+                      <th>Ders Kodu</th>
+                      <th>Ders Adı</th>
+                      <th>Kredi</th>
+                      <th>Vize</th>
+                      <th>Final</th>
+                      <th>Ödev</th>
+                      <th>Puan</th>
+                      <th>Harf</th>
+                      <th>Durum</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (c of sem.courses; track c.course_code) {
+                      <tr [class.tr-row-fail]="c.is_passing === false">
+                        <td class="td-code">{{ c.course_code }}</td>
+                        <td class="td-cname">{{ c.course_name }}</td>
+                        <td class="td-center">{{ c.credits }}</td>
+                        <td class="td-center">{{ c.midterm ?? '—' }}</td>
+                        <td class="td-center">{{ c.final ?? '—' }}</td>
+                        <td class="td-center">{{ c.homework ?? '—' }}</td>
+                        <td class="td-center">{{ c.raw_score ?? '—' }}</td>
+                        <td class="td-center">
+                          <span class="tr-letter" [class]="gradeClass(c.letter_grade)">
+                            {{ c.letter_grade ?? '—' }}
+                          </span>
+                        </td>
+                        <td class="td-center">
+                          @if (c.is_passing === true) {
+                            <span class="tr-status pass">Geçti</span>
+                          } @else if (c.is_passing === false) {
+                            <span class="tr-status fail">Kaldı</span>
+                          } @else {
+                            <span class="tr-status pending">Bekliyor</span>
+                          }
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            }
+          }
+        }
+
       </main>
     </div>
   </div>
