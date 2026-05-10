@@ -25,7 +25,8 @@ export interface UserInfo {
 
 interface LoginResponse {
   success: boolean;
-  student: UserInfo;
+  message: string;
+  data: { student: UserInfo };
 }
 
 @Injectable({ providedIn: 'root' })
@@ -45,7 +46,7 @@ export class AuthService {
       .pipe(
         tap((res) => {
           if (isPlatformBrowser(this.platformId)) {
-            localStorage.setItem(this.STORAGE_KEY, JSON.stringify(res.student));
+            localStorage.setItem(this.STORAGE_KEY, JSON.stringify(res.data.student));
           }
         })
       );
@@ -65,6 +66,12 @@ export class AuthService {
   getUser(): UserInfo | null {
     if (!isPlatformBrowser(this.platformId)) return null;
     const data = localStorage.getItem(this.STORAGE_KEY);
-    return data ? (JSON.parse(data) as UserInfo) : null;
+    if (!data) return null;
+    try {
+      return JSON.parse(data) as UserInfo;
+    } catch {
+      localStorage.removeItem(this.STORAGE_KEY);
+      return null;
+    }
   }
 }

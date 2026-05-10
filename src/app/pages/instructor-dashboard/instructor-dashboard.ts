@@ -1,12 +1,14 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, PLATFORM_ID, inject, ChangeDetectorRef } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService, UserInfo } from '../../services/auth.service';
-import { DashboardService, CourseItem, PendingGradeItem } from '../../services/dashboard.service';
+import { DashboardService, CourseItem, PendingGradeItem, RegistrationRequest } from '../../services/dashboard.service';
 
 @Component({
   selector: 'app-instructor-dashboard',
   standalone: true,
-  imports: [],
+  imports: [CommonModule, FormsModule],
   templateUrl: './instructor-dashboard.html',
   styleUrl: './instructor-dashboard.css',
 })
@@ -18,6 +20,12 @@ export class InstructorDashboardComponent implements OnInit {
   courses: CourseItem[] = [];
   pendingGrades: PendingGradeItem[] = [];
   activeSemester = '';
+  registrationRequests: RegistrationRequest[] = [];
+  feedbackMap: Record<string, string> = {};
+  reviewingId: string | null = null;
+
+  private platformId = inject(PLATFORM_ID);
+  private cdr = inject(ChangeDetectorRef);
 
   constructor(
     private authService: AuthService,
@@ -26,6 +34,7 @@ export class InstructorDashboardComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
     this.user = this.authService.getUser();
     if (!this.user) return;
 
@@ -34,13 +43,41 @@ export class InstructorDashboardComponent implements OnInit {
         this.courses = res.courses ?? [];
         this.activeSemester = res.semester ?? '';
         this.loading = false;
+        this.cdr.detectChanges();
       },
-      error: () => { this.loading = false; },
+      error: () => { this.loading = false; this.cdr.detectChanges(); },
     });
 
     this.dashService.getPendingGrades(this.user.identifier).subscribe({
-      next: (res) => { this.pendingGrades = res.pending ?? []; },
+      next: (res) => { this.pendingGrades = res.pending ?? []; this.cdr.detectChanges(); },
       error: () => {},
+    });
+
+    this.dashService.getRegistrationRequests(this.user.identifier).subscribe({
+      next: (res) => { this.registrationRequests = res.requests ?? []; this.cdr.detectChanges(); },
+      error: () => {},
+    });
+  }
+
+  get pendingRequestCount(): number {
+    return this.registrationRequests.filter(r => r.status === 'pending').length;
+  }
+
+  get pendingRequests(): RegistrationRequest[] {
+    return this.registrationRequests.filter(r => r.status === 'pending');
+  }
+
+  review(req: RegistrationRequest, action: 'approve' | 'reject'): void {
+    if (this.reviewingId === req.id) return;
+    this.reviewingId = req.id;
+    const feedback = this.feedbackMap[req.id] ?? '';
+    this.dashService.reviewRegistrationRequest(req.id, this.user!.identifier, action, feedback).subscribe({
+      next: () => {
+        req.status   = action === 'approve' ? 'approved' : 'rejected';
+        req.feedback = feedback || null;
+        this.reviewingId = null;
+      },
+      error: () => { this.reviewingId = null; },
     });
   }
 
