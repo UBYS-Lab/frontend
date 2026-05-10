@@ -166,20 +166,34 @@
             <div class="card-head">
               <div>
                 <h3>Ders Programı Özeti</h3>
-                <p class="card-sub">{{ activeSemester }}</p>
+                <p class="card-sub">{{ todaySchedule().length > 0 ? 'Bugünün dersleri' : 'Bu haftanın dersleri' }}</p>
               </div>
-              <button class="see-all">Tamamını Gör →</button>
+              <button class="see-all" (click)="setNav('program')">Tamamını Gör →</button>
             </div>
             @if (loading) {
               <p class="empty-msg">Yükleniyor...</p>
-            } @else if (todaySchedule().length === 0) {
-              <p class="empty-msg">Bugün ders yok.</p>
-            } @else {
+            } @else if (scheduleItems.length === 0) {
+              <p class="empty-msg">Kayıtlı ders bulunamadı.</p>
+            } @else if (todaySchedule().length > 0) {
               @for (item of todaySchedule(); track item.code) {
                 <div class="schedule-item">
                   <div class="schedule-time">
                     <p class="time-start">{{ item.start }}</p>
                     <p class="time-end">{{ item.end }}</p>
+                  </div>
+                  <div class="schedule-info">
+                    <p class="schedule-code">{{ item.code }} – {{ item.name }}</p>
+                    <p class="schedule-detail">{{ item.instructor }} • {{ item.room }}</p>
+                  </div>
+                  <span class="status-badge enrolled">KAYITLI</span>
+                </div>
+              }
+            } @else {
+              @for (item of weekSchedule(); track item.day + item.code + item.start) {
+                <div class="schedule-item">
+                  <div class="schedule-time">
+                    <p class="time-start">{{ item.day }}</p>
+                    <p class="time-end">{{ item.start }}</p>
                   </div>
                   <div class="schedule-info">
                     <p class="schedule-code">{{ item.code }} – {{ item.name }}</p>
@@ -195,20 +209,20 @@
           <div class="announce-card">
             <div class="card-head">
               <h3>Güncel Duyurular</h3>
-              <button class="more-btn">···</button>
+              <button class="more-btn" (click)="setNav('kampus')">Tümü →</button>
             </div>
             @if (announcements.length === 0) {
               <p class="empty-msg">Duyuru bulunamadı.</p>
             } @else {
-              @for (ann of announcements; track ann.title) {
-                <div class="ann-item">
+              @for (ann of announcements.slice(0,3); track ann.id) {
+                <div class="ann-item" style="cursor:pointer" (click)="setNav('kampus'); openAnn(ann)">
                   <p class="ann-date">{{ ann.date }}</p>
                   <p class="ann-title">{{ ann.title }}</p>
                   <p class="ann-excerpt">{{ ann.content }}</p>
                 </div>
               }
             }
-            <button class="all-ann-btn">Tüm Duyuruları Gör</button>
+            <button class="all-ann-btn" (click)="setNav('kampus')">Tüm Duyuruları Gör</button>
           </div>
         </div>
         } <!-- /panel -->
@@ -339,36 +353,107 @@
 
         <!-- ─── KAMPÜS YAŞAMI ─────────────────────────────── -->
         @if (activeNav === 'kampus') {
-          <div class="tr-page-header">
-            <div>
-              <h2 class="tr-page-title">Kampüs Yaşamı</h2>
-              <p class="tr-page-sub">Duyurular ve etkinlikler</p>
-            </div>
-          </div>
-          @if (announcements.length === 0) {
-            <p class="empty-msg">Duyuru bulunamadı.</p>
-          } @else {
-            <div class="ann-list">
-              @for (ann of announcements; track ann.title) {
-                <div class="ann-card" [class.ann-high]="ann.priority === 'high'">
-                  <div class="ann-left">
-                    <div class="ann-icon-wrap" [class.icon-high]="ann.priority === 'high'">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-                    </div>
-                  </div>
-                  <div class="ann-body">
-                    <div class="ann-meta">
-                      <span class="ann-date-tag">{{ ann.date }}</span>
-                      @if (ann.priority === 'high') {
-                        <span class="ann-priority-tag">Önemli</span>
-                      }
-                    </div>
-                    <h3 class="ann-card-title">{{ ann.title }}</h3>
-                    <p class="ann-card-content">{{ ann.content }}</p>
+
+          <!-- DETAY GÖRÜNÜMÜ -->
+          @if (selectedAnn) {
+            <div class="ann-detail">
+              <button class="ann-back" (click)="closeAnn()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polyline points="15 18 9 12 15 6"/></svg>
+                Duyurulara Dön
+              </button>
+              @if (selectedAnn.image_url) {
+                <img class="ann-detail-img" [src]="selectedAnn.image_url" [alt]="selectedAnn.title">
+              }
+              <div class="ann-detail-body">
+                <div class="ann-detail-meta">
+                  <span class="ann-date-tag">{{ selectedAnn.date }}</span>
+                  @if (selectedAnn.priority === 'high') { <span class="ann-priority-tag">Önemli</span> }
+                  <span class="ann-pub">{{ selectedAnn.publisher }}</span>
+                </div>
+                <h2 class="ann-detail-title">{{ selectedAnn.title }}</h2>
+                <p class="ann-detail-content">{{ selectedAnn.content }}</p>
+
+                <!-- Beğeni & Tepkiler -->
+                <div class="ann-reactions-bar">
+                  <button class="react-btn" [class.reacted]="myLiked" (click)="toggleLike()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3H14z"/><path d="M7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3"/></svg>
+                    {{ selectedAnn.likes }} Beğeni
+                  </button>
+                  <div class="react-emojis">
+                    <button class="emoji-btn" [class.active]="myReaction==='like'"   (click)="sendReact('like')">👍 {{ selectedAnn.reactions.like }}</button>
+                    <button class="emoji-btn" [class.active]="myReaction==='love'"   (click)="sendReact('love')">❤️ {{ selectedAnn.reactions.love }}</button>
+                    <button class="emoji-btn" [class.active]="myReaction==='wow'"    (click)="sendReact('wow')">😮 {{ selectedAnn.reactions.wow }}</button>
+                    <button class="emoji-btn" [class.active]="myReaction==='haha'"   (click)="sendReact('haha')">😄 {{ selectedAnn.reactions.haha }}</button>
                   </div>
                 </div>
-              }
+
+                <!-- Yorumlar -->
+                <div class="ann-comments">
+                  <h4 class="comments-title">Yorumlar ({{ selectedAnn.comments.length }})</h4>
+                  @if (selectedAnn.comments.length === 0) {
+                    <p class="empty-msg" style="padding:12px 0">Henüz yorum yok. İlk yorumu sen yap!</p>
+                  } @else {
+                    @for (c of selectedAnn.comments; track c.id) {
+                      <div class="comment-item">
+                        <div class="comment-avatar">{{ c.user_name[0] }}</div>
+                        <div class="comment-body">
+                          <span class="comment-name">{{ c.user_name }}</span>
+                          <span class="comment-time">{{ c.created_at }}</span>
+                          <p class="comment-text">{{ c.text }}</p>
+                        </div>
+                      </div>
+                    }
+                  }
+                  <div class="comment-form">
+                    <input class="comment-input" [(ngModel)]="commentText" placeholder="Yorumunuzu yazın..." (keyup.enter)="submitComment()">
+                    <button class="comment-submit" [disabled]="commentSubmitting || !commentText.trim()" (click)="submitComment()">
+                      {{ commentSubmitting ? '...' : 'Gönder' }}
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
+
+          } @else {
+            <!-- LİSTE GÖRÜNÜMÜ -->
+            <div class="tr-page-header">
+              <div>
+                <h2 class="tr-page-title">Kampüs Yaşamı</h2>
+                <p class="tr-page-sub">Duyurular ve etkinlikler</p>
+              </div>
+            </div>
+            @if (allAnnLoading) {
+              <div class="tr-loading"><div class="tr-spinner"></div><p>Yükleniyor...</p></div>
+            } @else if (allAnnouncements.length === 0) {
+              <p class="empty-msg">Duyuru bulunamadı.</p>
+            } @else {
+              <div class="ann-grid">
+                @for (ann of allAnnouncements; track ann.id) {
+                  <div class="ann-grid-card" (click)="openAnn(ann)">
+                    @if (ann.image_url) {
+                      <img class="ann-grid-img" [src]="ann.image_url" [alt]="ann.title">
+                    } @else {
+                      <div class="ann-grid-img-placeholder">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="28" height="28"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                      </div>
+                    }
+                    <div class="ann-grid-body">
+                      <div class="ann-grid-meta">
+                        <span class="ann-date-tag">{{ ann.date }}</span>
+                        @if (ann.priority === 'high') { <span class="ann-priority-tag">Önemli</span> }
+                      </div>
+                      <h3 class="ann-grid-title">{{ ann.title }}</h3>
+                      <p class="ann-grid-excerpt">{{ ann.content }}</p>
+                      <div class="ann-grid-footer">
+                        <span>👍 {{ ann.likes }}</span>
+                        <span>💬 {{ ann.comments.length }}</span>
+                        <span>{{ totalReactions(ann) }} tepki</span>
+                      </div>
+                    </div>
+                  </div>
+                }
+              </div>
+            }
           }
         }
 

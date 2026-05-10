@@ -1,13 +1,14 @@
 import { Component, OnInit, PLATFORM_ID, inject, ChangeDetectorRef } from '@angular/core';
 import { DecimalPipe, isPlatformBrowser, CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService, UserInfo } from '../../services/auth.service';
-import { DashboardService, ScheduleItem, AnnouncementItem, Transcript, SemesterSummary } from '../../services/dashboard.service';
+import { DashboardService, ScheduleItem, AnnouncementItem, AnnouncementComment, Transcript, SemesterSummary } from '../../services/dashboard.service';
 
 @Component({
   selector: 'app-student-dashboard',
   standalone: true,
-  imports: [DecimalPipe, CommonModule],
+  imports: [DecimalPipe, CommonModule, FormsModule],
   templateUrl: './student-dashboard.html',
   styleUrl: './student-dashboard.css',
 })
@@ -22,6 +23,14 @@ export class StudentDashboardComponent implements OnInit {
 
   transcript: Transcript | null = null;
   transcriptLoading = false;
+
+  allAnnouncements: AnnouncementItem[] = [];
+  allAnnLoading = false;
+  selectedAnn: AnnouncementItem | null = null;
+  myReaction: string | null = null;
+  myLiked = false;
+  commentText = '';
+  commentSubmitting = false;
 
   private platformId = inject(PLATFORM_ID);
   private cdr = inject(ChangeDetectorRef);
@@ -54,7 +63,7 @@ export class StudentDashboardComponent implements OnInit {
   }
 
   todaySchedule(): { start: string; end: string; code: string; name: string; instructor: string; room: string; status: string }[] {
-    const days: Record<number, string> = { 0: 'Sunday', 1: 'Monday', 2: 'Tuesday', 3: 'Wednesday', 4: 'Thursday', 5: 'Friday', 6: 'Saturday' };
+    const days: Record<number, string> = { 0: 'Pazar', 1: 'Pazartesi', 2: 'Salı', 3: 'Çarşamba', 4: 'Perşembe', 5: 'Cuma', 6: 'Cumartesi' };
     const today = days[new Date().getDay()];
     const result: any[] = [];
     for (const item of this.scheduleItems) {
@@ -65,6 +74,17 @@ export class StudentDashboardComponent implements OnInit {
       }
     }
     return result.sort((a, b) => a.start.localeCompare(b.start));
+  }
+
+  weekSchedule(): { day: string; start: string; end: string; code: string; name: string; instructor: string; room: string }[] {
+    const order: Record<string, number> = { 'Pazartesi': 1, 'Salı': 2, 'Çarşamba': 3, 'Perşembe': 4, 'Cuma': 5, 'Cumartesi': 6, 'Pazar': 7 };
+    const result: any[] = [];
+    for (const item of this.scheduleItems) {
+      for (const slot of item.schedule) {
+        result.push({ day: slot.day, start: slot.start_time, end: slot.end_time, code: item.course_code, name: item.course_name, instructor: item.instructor, room: slot.classroom });
+      }
+    }
+    return result.sort((a, b) => (order[a.day] ?? 9) - (order[b.day] ?? 9) || a.start.localeCompare(b.start));
   }
 
   get gnoLabel(): string {
@@ -92,9 +112,73 @@ export class StudentDashboardComponent implements OnInit {
 
   setNav(nav: string) {
     this.activeNav = nav;
+    this.selectedAnn = null;
     if (nav === 'notlar' && !this.transcript && !this.transcriptLoading) {
       this.loadTranscript();
     }
+    if (nav === 'kampus' && this.allAnnouncements.length === 0 && !this.allAnnLoading) {
+      this.loadAllAnnouncements();
+    }
+  }
+
+  loadAllAnnouncements(): void {
+    if (!this.user) return;
+    this.allAnnLoading = true;
+    this.dashService.getAllAnnouncements(this.user.department_id ?? 0).subscribe({
+      next: (res) => { this.allAnnouncements = res.announcements ?? []; this.allAnnLoading = false; this.cdr.detectChanges(); },
+      error: () => { this.allAnnLoading = false; this.cdr.detectChanges(); },
+    });
+  }
+
+  openAnn(ann: AnnouncementItem): void {
+    this.selectedAnn = ann;
+    this.myReaction = null;
+    this.myLiked = false;
+    this.commentText = '';
+    this.cdr.detectChanges();
+  }
+
+  closeAnn(): void { this.selectedAnn = null; this.cdr.detectChanges(); }
+
+  toggleLike(): void {
+    if (!this.selectedAnn || !this.user) return;
+    this.dashService.likeAnnouncement(this.selectedAnn.id, this.user.identifier).subscribe({
+      next: (res) => {
+        if (this.selectedAnn) { this.selectedAnn.likes = res.likes; this.myLiked = res.liked; }
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  sendReact(emoji: string): void {
+    if (!this.selectedAnn || !this.user) return;
+    this.dashService.reactAnnouncement(this.selectedAnn.id, this.user.identifier, emoji).subscribe({
+      next: (res) => {
+        if (this.selectedAnn) { this.selectedAnn.reactions = res.reactions; this.myReaction = res.my_reaction; }
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  submitComment(): void {
+    const text = this.commentText.trim();
+    if (!text || !this.selectedAnn || !this.user || this.commentSubmitting) return;
+    this.commentSubmitting = true;
+    const name = this.user.full_name ?? 'Öğrenci';
+    this.dashService.commentAnnouncement(this.selectedAnn.id, this.user.identifier, name, text).subscribe({
+      next: (res) => {
+        if (this.selectedAnn) this.selectedAnn.comments = [...this.selectedAnn.comments, res.comment];
+        this.commentText = '';
+        this.commentSubmitting = false;
+        this.cdr.detectChanges();
+      },
+      error: () => { this.commentSubmitting = false; this.cdr.detectChanges(); },
+    });
+  }
+
+  totalReactions(ann: AnnouncementItem): number {
+    const r = ann.reactions;
+    return (r?.like ?? 0) + (r?.love ?? 0) + (r?.wow ?? 0) + (r?.haha ?? 0);
   }
 
   loadTranscript(): void {
