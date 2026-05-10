@@ -33,6 +33,10 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
           Akademik Takvim
         </button>
+        <button class="nav-item" [class.active]="activeNav==='yoklama'" (click)="setNav('yoklama')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><circle cx="12" cy="12" r="10"/></svg>
+          Yoklama
+        </button>
         <button class="nav-item" [class.active]="activeNav==='kampus'" (click)="setNav('kampus')">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
           Kampüs Yaşamı
@@ -150,12 +154,12 @@
             <p class="quick-title">Transkript</p>
             <p class="quick-sub">Resmi not dökümü belgesi</p>
           </div>
-          <div class="quick-card" (click)="setNav('takvim')">
-            <div class="quick-icon teal">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <div class="quick-card" (click)="setNav('yoklama')">
+            <div class="quick-icon red">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
             </div>
-            <p class="quick-title">Akademik Takvim</p>
-            <p class="quick-sub">Önemli tarihler ve tatiller</p>
+            <p class="quick-title">Yoklama</p>
+            <p class="quick-sub">Devamsızlık takibi</p>
           </div>
         </div>
 
@@ -600,6 +604,71 @@
 
               </div>
             }
+          }
+        }
+
+        <!-- ─── YOKLAMA ─────────────────────────────────── -->
+        @if (activeNav === 'yoklama') {
+          <div class="tr-page-header">
+            <div>
+              <h2 class="tr-page-title">Yoklama Durumu</h2>
+              <p class="tr-page-sub">Ders devamsızlık takibi</p>
+            </div>
+          </div>
+
+          <!-- QR Giriş Kutusu -->
+          <div class="qr-checkin-box">
+            <div class="qr-checkin-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h3v3h-3z"/><path d="M17 17h3v3h-3z"/><path d="M14 20h3"/><path d="M20 14v3"/></svg>
+            </div>
+            <div class="qr-checkin-text">
+              <strong>QR ile Yoklamaya Katıl</strong>
+              <p>Öğretmenin oluşturduğu QR kodunu tara veya kodu gir</p>
+            </div>
+            <div class="qr-token-form">
+              <input class="qr-input" [(ngModel)]="qrTokenInput" placeholder="QR kodu gir...">
+              <button class="qr-submit-btn" [disabled]="qrSubmitting || !qrTokenInput.trim()" (click)="submitQr()">
+                {{ qrSubmitting ? '...' : 'Katıl' }}
+              </button>
+            </div>
+            @if (qrMessage) {
+              <span class="qr-msg" [class.qr-ok]="qrSuccess" [class.qr-err]="!qrSuccess">{{ qrMessage }}</span>
+            }
+          </div>
+
+          @if (attendanceLoading) {
+            <div class="tr-loading"><div class="tr-spinner"></div><p>Yükleniyor...</p></div>
+          } @else if (attendanceSummary.length === 0) {
+            <p class="empty-msg">Henüz yoklama kaydı bulunmuyor.</p>
+          } @else {
+            <div class="att-grid">
+              @for (course of attendanceSummary; track course.course_code) {
+                <div class="att-card" [class.att-danger]="course.attendance_rate < 70">
+                  <div class="att-card-top">
+                    <span class="att-code">{{ course.course_code }}</span>
+                    <span class="att-rate" [class.rate-ok]="course.attendance_rate >= 70" [class.rate-warn]="course.attendance_rate < 70">
+                      %{{ course.attendance_rate }}
+                    </span>
+                  </div>
+                  <div class="att-bar-wrap">
+                    <div class="att-bar">
+                      <div class="att-bar-fill" [style.width.%]="course.attendance_rate"
+                        [class.fill-ok]="course.attendance_rate >= 70"
+                        [class.fill-warn]="course.attendance_rate < 70"></div>
+                    </div>
+                  </div>
+                  <div class="att-stats">
+                    <span class="att-stat present">✓ {{ course.present }} Var</span>
+                    <span class="att-stat late">⏱ {{ course.late }} Geç</span>
+                    <span class="att-stat absent">✗ {{ course.absent }} Yok</span>
+                    <span class="att-stat total">{{ course.total }} Toplam</span>
+                  </div>
+                  @if (course.attendance_rate < 70) {
+                    <div class="att-warn">⚠ Devamsızlık sınırına yaklaşıyorsunuz!</div>
+                  }
+                </div>
+              }
+            </div>
           }
         }
 

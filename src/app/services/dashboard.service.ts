@@ -229,6 +229,39 @@ export class DashboardService {
     return this.http.post<any>(`${this.API}/instructor/course-grades/batch`, { instructor_id: instructorId, course_code: courseCode, semester_name: semesterName, grades });
   }
 
+  // ── Attendance ───────────────────────────────────────────────
+  createAttendanceSession(instructorId: string, courseCode: string, section: string): Observable<any> {
+    return this.http.post<any>(`${this.API}/attendance/session`, { instructor_id: instructorId, course_code: courseCode, section });
+  }
+
+  getSessionStatus(sessionId: string): Observable<any> {
+    return this.http.get<any>(`${this.API}/attendance/session/${sessionId}`);
+  }
+
+  closeSession(sessionId: string): Observable<any> {
+    return this.http.post<any>(`${this.API}/attendance/session/${sessionId}/close`, {});
+  }
+
+  markStudent(sessionId: string, studentNo: string, status: 'present' | 'absent' | 'late'): Observable<any> {
+    return this.http.post<any>(`${this.API}/attendance/mark`, { session_id: sessionId, student_no: studentNo, status });
+  }
+
+  qrCheckin(qrToken: string, studentNo: string): Observable<any> {
+    return this.http.post<any>(`${this.API}/attendance/qr-checkin`, { qr_token: qrToken, student_no: studentNo });
+  }
+
+  getStudentAttendance(studentNo: string): Observable<any> {
+    return this.http.get<any>(`${this.API}/attendance/student-report`, { params: { student_no: studentNo } });
+  }
+
+  getCourseAttendanceReport(courseCode: string, section: string): Observable<any> {
+    return this.http.get<any>(`${this.API}/attendance/course-report`, { params: { course_code: courseCode, section } });
+  }
+
+  getActiveSessions(instructorId: string): Observable<any> {
+    return this.http.get<any>(`${this.API}/attendance/active-sessions`, { params: { instructor_id: instructorId } });
+  }
+
   // ── Manager ──────────────────────────────────────────────────
   getManagerStats(): Observable<{ success: boolean; stats: ManagerStats }> {
     return this.http.get<any>(`${this.API}/manager/stats`);

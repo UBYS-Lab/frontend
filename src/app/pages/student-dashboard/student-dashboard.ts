@@ -32,6 +32,13 @@ export class StudentDashboardComponent implements OnInit {
   commentText = '';
   commentSubmitting = false;
 
+  attendanceSummary: any[] = [];
+  attendanceLoading = false;
+  qrTokenInput = '';
+  qrSubmitting = false;
+  qrMessage = '';
+  qrSuccess = false;
+
   private platformId = inject(PLATFORM_ID);
   private cdr = inject(ChangeDetectorRef);
 
@@ -119,6 +126,41 @@ export class StudentDashboardComponent implements OnInit {
     if (nav === 'kampus' && this.allAnnouncements.length === 0 && !this.allAnnLoading) {
       this.loadAllAnnouncements();
     }
+    if (nav === 'yoklama' && this.attendanceSummary.length === 0 && !this.attendanceLoading) {
+      this.loadAttendance();
+    }
+  }
+
+  loadAttendance(): void {
+    if (!this.user) return;
+    this.attendanceLoading = true;
+    this.dashService.getStudentAttendance(this.user.identifier).subscribe({
+      next: (res) => { this.attendanceSummary = res.attendance ?? []; this.attendanceLoading = false; this.cdr.detectChanges(); },
+      error: () => { this.attendanceLoading = false; this.cdr.detectChanges(); },
+    });
+  }
+
+  submitQr(): void {
+    const token = this.qrTokenInput.trim();
+    if (!token || !this.user || this.qrSubmitting) return;
+    this.qrSubmitting = true;
+    this.qrMessage = '';
+    this.dashService.qrCheckin(token, this.user.identifier).subscribe({
+      next: (res) => {
+        this.qrSuccess = res.success;
+        this.qrMessage = res.message;
+        this.qrTokenInput = '';
+        this.qrSubmitting = false;
+        if (res.success) this.loadAttendance();
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.qrSuccess = false;
+        this.qrMessage = err?.error?.message ?? 'Bir hata oluştu';
+        this.qrSubmitting = false;
+        this.cdr.detectChanges();
+      },
+    });
   }
 
   loadAllAnnouncements(): void {
