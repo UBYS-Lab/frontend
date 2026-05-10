@@ -29,9 +29,9 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
           Haftalık Program
         </button>
-        <button class="nav-item" [class.active]="activeNav==='mali'" (click)="setNav('mali')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
-          Mali İşlemler
+        <button class="nav-item" [class.active]="activeNav==='takvim'" (click)="setNav('takvim')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          Akademik Takvim
         </button>
         <button class="nav-item" [class.active]="activeNav==='kampus'" (click)="setNav('kampus')">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
@@ -95,7 +95,7 @@
             </div>
             <div class="stat-box">
               <p class="stat-label">DÖNEM</p>
-              <p class="stat-value">{{ semester }}</p>
+              <p class="stat-value">{{ activeSemester || semester }}</p>
             </div>
           </div>
           <div class="gno-card">
@@ -114,14 +114,14 @@
 
         <!-- Quick actions -->
         <div class="quick-grid">
-          <div class="quick-card">
+          <div class="quick-card" (click)="setNav('program')">
             <div class="quick-icon blue">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
             </div>
             <p class="quick-title">Ders Programı</p>
             <p class="quick-sub">Haftalık akış ve konumlar</p>
           </div>
-          <div class="quick-card">
+          <div class="quick-card" (click)="setNav('notlar')">
             <div class="quick-icon green">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
             </div>
@@ -129,28 +129,28 @@
             <p class="quick-title">Notlar</p>
             <p class="quick-sub">Vize ve final sonuçları</p>
           </div>
-          <div class="quick-card">
+          <div class="quick-card" (click)="setNav('kampus')">
             <div class="quick-icon orange">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
             </div>
             <p class="quick-title">Duyurular</p>
             <p class="quick-sub">Kampüs ve bölüm haberleri</p>
           </div>
-          <div class="quick-card">
+          <div class="quick-card" (click)="goToCourseRegistration()">
             <div class="quick-icon purple">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             </div>
             <p class="quick-title">Ders Seçimi</p>
             <p class="quick-sub">Kayıt ve ders ekle/çıkar</p>
           </div>
-          <div class="quick-card">
+          <div class="quick-card" (click)="setNav('notlar')">
             <div class="quick-icon gray">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
             </div>
             <p class="quick-title">Transkript</p>
             <p class="quick-sub">Resmi not dökümü belgesi</p>
           </div>
-          <div class="quick-card">
+          <div class="quick-card" (click)="setNav('takvim')">
             <div class="quick-icon teal">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
             </div>
@@ -215,44 +215,48 @@
 
         <!-- ─── HAFTALİK PROGRAM ────────────────────────── -->
         @if (activeNav === 'program') {
-          <div class="section-header">
-            <h2>Haftalık Ders Programı</h2>
-            <span class="section-sub">{{ activeSemester }}</span>
+          <div class="tr-page-header">
+            <div>
+              <h2 class="tr-page-title">Haftalık Ders Programı</h2>
+              <p class="tr-page-sub">{{ activeSemester }}</p>
+            </div>
           </div>
           @if (loading) {
-            <p class="empty-msg">Yükleniyor...</p>
+            <div class="tr-loading"><div class="tr-spinner"></div><p>Yükleniyor...</p></div>
           } @else if (scheduleItems.length === 0) {
-            <p class="empty-msg">Kayıtlı ders bulunamadı.</p>
+            <p class="empty-msg">Bu dönem kayıtlı ders bulunamadı.</p>
           } @else {
-            <div class="tr-semester-block">
-              <table class="tr-table">
-                <thead>
-                  <tr>
-                    <th>Ders Kodu</th>
-                    <th>Ders Adı</th>
-                    <th>Öğretim Görevlisi</th>
-                    <th>Gün</th>
-                    <th>Saat</th>
-                    <th>Derslik</th>
-                    <th>Durum</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  @for (item of scheduleItems; track item.course_code) {
+            <div class="sched-list">
+              @for (item of scheduleItems; track item.course_code) {
+                <div class="sched-card">
+                  <div class="sched-card-top">
+                    <div class="sched-course-info">
+                      <span class="sched-code">{{ item.course_code }}</span>
+                      <span class="sched-name">{{ item.course_name }}</span>
+                    </div>
+                    <div class="sched-instructor">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                      {{ item.instructor }}
+                    </div>
+                  </div>
+                  <div class="sched-slots">
                     @for (slot of item.schedule; track slot.day + slot.start_time) {
-                      <tr>
-                        <td class="td-code">{{ item.course_code }}</td>
-                        <td class="td-cname">{{ item.course_name }}</td>
-                        <td class="td-center">{{ item.instructor }}</td>
-                        <td class="td-center">{{ slot.day }}</td>
-                        <td class="td-center">{{ slot.start_time }} – {{ slot.end_time }}</td>
-                        <td class="td-center">{{ slot.classroom }}</td>
-                        <td class="td-center"><span class="tr-status pass">Kayıtlı</span></td>
-                      </tr>
+                      <div class="sched-slot">
+                        <span class="sched-day">{{ slot.day }}</span>
+                        <span class="sched-time">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                          {{ slot.start_time }} – {{ slot.end_time }}
+                        </span>
+                        <span class="sched-room">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+                          {{ slot.classroom }}
+                        </span>
+                        <span class="sched-status">Kayıtlı</span>
+                      </div>
                     }
-                  }
-                </tbody>
-              </table>
+                  </div>
+                </div>
+              }
             </div>
           }
         }
@@ -281,31 +285,90 @@
           }
         }
 
-        <!-- ─── MALİ İŞLEMLER ────────────────────────────── -->
-        @if (activeNav === 'mali') {
-          <div class="section-header">
-            <h2>Mali İşlemler</h2>
-            <span class="section-sub">Harç ve ödeme bilgileri</span>
+        <!-- ─── AKADEMİK TAKVİM ──────────────────────────── -->
+        @if (activeNav === 'takvim') {
+          <div class="tr-page-header">
+            <div>
+              <h2 class="tr-page-title">Akademik Takvim</h2>
+              <p class="tr-page-sub">{{ activeSemester || semester }} — Önemli tarihler</p>
+            </div>
           </div>
-          <p class="empty-msg">Bu bölüm yakında aktif olacak.</p>
+          <div class="takvim-list">
+            <div class="takvim-item takvim-done">
+              <div class="takvim-dot"></div>
+              <div class="takvim-body">
+                <span class="takvim-date">10 Şub 2025</span>
+                <p class="takvim-title">Bahar Dönemi Başlangıcı</p>
+                <p class="takvim-desc">Dersler başladı</p>
+              </div>
+            </div>
+            <div class="takvim-item takvim-done">
+              <div class="takvim-dot"></div>
+              <div class="takvim-body">
+                <span class="takvim-date">7 Nis 2025</span>
+                <p class="takvim-title">Vize Sınavları</p>
+                <p class="takvim-desc">Ara sınav haftası</p>
+              </div>
+            </div>
+            <div class="takvim-item takvim-upcoming">
+              <div class="takvim-dot"></div>
+              <div class="takvim-body">
+                <span class="takvim-date">20 Haz 2025</span>
+                <p class="takvim-title">Final Sınavları</p>
+                <p class="takvim-desc">Son sınav haftası</p>
+              </div>
+            </div>
+            <div class="takvim-item takvim-upcoming">
+              <div class="takvim-dot"></div>
+              <div class="takvim-body">
+                <span class="takvim-date">30 Haz 2025</span>
+                <p class="takvim-title">Bahar Dönemi Sonu</p>
+                <p class="takvim-desc">Dönem kapanışı</p>
+              </div>
+            </div>
+            <div class="takvim-item takvim-upcoming">
+              <div class="takvim-dot"></div>
+              <div class="takvim-body">
+                <span class="takvim-date">15 Eyl 2025</span>
+                <p class="takvim-title">Güz Dönemi Başlangıcı</p>
+                <p class="takvim-desc">Yeni dönem kaydı ve dersler</p>
+              </div>
+            </div>
+          </div>
         }
 
         <!-- ─── KAMPÜS YAŞAMI ─────────────────────────────── -->
         @if (activeNav === 'kampus') {
-          <div class="section-header">
-            <h2>Kampüs Yaşamı</h2>
-            <span class="section-sub">Etkinlikler ve duyurular</span>
+          <div class="tr-page-header">
+            <div>
+              <h2 class="tr-page-title">Kampüs Yaşamı</h2>
+              <p class="tr-page-sub">Duyurular ve etkinlikler</p>
+            </div>
           </div>
           @if (announcements.length === 0) {
             <p class="empty-msg">Duyuru bulunamadı.</p>
           } @else {
-            @for (ann of announcements; track ann.title) {
-              <div class="ann-item" style="border:1px solid #e4e7ec; border-radius:10px; padding:14px 18px; margin-bottom:12px; background:#fff;">
-                <p class="ann-date">{{ ann.date }}</p>
-                <p class="ann-title">{{ ann.title }}</p>
-                <p class="ann-excerpt">{{ ann.content }}</p>
-              </div>
-            }
+            <div class="ann-list">
+              @for (ann of announcements; track ann.title) {
+                <div class="ann-card" [class.ann-high]="ann.priority === 'high'">
+                  <div class="ann-left">
+                    <div class="ann-icon-wrap" [class.icon-high]="ann.priority === 'high'">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                    </div>
+                  </div>
+                  <div class="ann-body">
+                    <div class="ann-meta">
+                      <span class="ann-date-tag">{{ ann.date }}</span>
+                      @if (ann.priority === 'high') {
+                        <span class="ann-priority-tag">Önemli</span>
+                      }
+                    </div>
+                    <h3 class="ann-card-title">{{ ann.title }}</h3>
+                    <p class="ann-card-content">{{ ann.content }}</p>
+                  </div>
+                </div>
+              }
+            </div>
           }
         }
 
