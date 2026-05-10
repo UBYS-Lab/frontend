@@ -692,6 +692,81 @@
 .takvim-title { margin: 4px 0 2px; font-size: 14px; font-weight: 700; color: #101828; }
 .takvim-desc  { margin: 0; font-size: 12px; color: #667085; }
 
+/* ══ Duyuru Grid (Kampüs listesi) ════════════════════════════ */
+.ann-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+
+.ann-grid-card { background: #fff; border: 1px solid #e4e7ec; border-radius: 14px;
+  overflow: hidden; cursor: pointer; transition: .15s;
+  display: flex; flex-direction: column; }
+.ann-grid-card:hover { box-shadow: 0 6px 20px rgba(0,0,0,.1); transform: translateY(-2px); }
+
+.ann-grid-img { width: 100%; height: 160px; object-fit: cover; }
+.ann-grid-img-placeholder { height: 120px; background: #f2f4f7;
+  display: flex; align-items: center; justify-content: center; color: #98a2b3; }
+
+.ann-grid-body { padding: 14px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
+.ann-grid-meta { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.ann-grid-title { margin: 0; font-size: 14px; font-weight: 700; color: #101828;
+  display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2;
+  -webkit-box-orient: vertical; overflow: hidden; }
+.ann-grid-excerpt { margin: 0; font-size: 12px; color: #667085; line-height: 1.5;
+  display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2;
+  -webkit-box-orient: vertical; overflow: hidden; flex: 1; }
+.ann-grid-footer { display: flex; gap: 12px; font-size: 12px; color: #98a2b3;
+  border-top: 1px solid #f2f4f7; padding-top: 8px; margin-top: auto; }
+
+/* ══ Duyuru Detay ════════════════════════════════════════════ */
+.ann-detail { display: flex; flex-direction: column; gap: 0; }
+.ann-back { display: inline-flex; align-items: center; gap: 6px; background: none; border: none;
+  font-size: 13px; font-weight: 600; color: #3b5bdb; cursor: pointer; padding: 0 0 16px; }
+.ann-back:hover { color: #1d4ed8; }
+
+.ann-detail-img { width: 100%; max-height: 340px; object-fit: cover; border-radius: 14px; margin-bottom: 20px; }
+
+.ann-detail-body { display: flex; flex-direction: column; gap: 14px; }
+.ann-detail-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.ann-pub { font-size: 11px; color: #98a2b3; margin-left: auto; }
+.ann-detail-title { margin: 0; font-size: 22px; font-weight: 800; color: #101828; line-height: 1.3; }
+.ann-detail-content { margin: 0; font-size: 14px; color: #344054; line-height: 1.8; }
+
+/* Tepkiler */
+.ann-reactions-bar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  padding: 14px 0; border-top: 1px solid #f2f4f7; border-bottom: 1px solid #f2f4f7; }
+
+.react-btn { display: flex; align-items: center; gap: 6px; padding: 8px 16px;
+  border: 1.5px solid #e4e7ec; border-radius: 20px; background: #fff;
+  font-size: 13px; font-weight: 600; color: #344054; cursor: pointer; transition: .15s; }
+.react-btn:hover { background: #f2f4f7; }
+.react-btn.reacted { background: #eef4ff; border-color: #3b5bdb; color: #3b5bdb; }
+
+.react-emojis { display: flex; gap: 6px; flex-wrap: wrap; }
+.emoji-btn { padding: 6px 12px; border: 1.5px solid #e4e7ec; border-radius: 20px;
+  background: #fff; font-size: 13px; cursor: pointer; transition: .15s; color: #344054; }
+.emoji-btn:hover { background: #f2f4f7; }
+.emoji-btn.active { background: #eef4ff; border-color: #3b5bdb; }
+
+/* Yorumlar */
+.ann-comments { display: flex; flex-direction: column; gap: 12px; }
+.comments-title { margin: 0; font-size: 15px; font-weight: 700; color: #101828; }
+
+.comment-item { display: flex; gap: 12px; }
+.comment-avatar { width: 36px; height: 36px; border-radius: 50%; background: #3b5bdb;
+  color: #fff; display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 700; flex-shrink: 0; text-transform: uppercase; }
+.comment-body { flex: 1; background: #f9fafb; border-radius: 10px; padding: 10px 14px; }
+.comment-name { font-size: 13px; font-weight: 700; color: #101828; }
+.comment-time { font-size: 11px; color: #98a2b3; margin-left: 8px; }
+.comment-text { margin: 4px 0 0; font-size: 13px; color: #344054; }
+
+.comment-form { display: flex; gap: 8px; margin-top: 4px; }
+.comment-input { flex: 1; border: 1.5px solid #e4e7ec; border-radius: 20px;
+  padding: 10px 16px; font-size: 13px; outline: none; }
+.comment-input:focus { border-color: #3b5bdb; }
+.comment-submit { padding: 10px 18px; background: #3b5bdb; color: #fff; border: none;
+  border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; transition: .15s; }
+.comment-submit:hover:not(:disabled) { background: #2f4abf; }
+.comment-submit:disabled { opacity: .5; cursor: not-allowed; }
+
 /* ══ Kampüs Yaşamı — Duyurular ══════════════════════════════ */
 .ann-list { display: flex; flex-direction: column; gap: 12px; }
 

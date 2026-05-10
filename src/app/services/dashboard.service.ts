@@ -11,13 +11,25 @@ export interface ScheduleItem {
   schedule: { day: string; start_time: string; end_time: string; classroom: string }[];
 }
 
+export interface AnnouncementComment {
+  id: string;
+  user_id: string;
+  user_name: string;
+  text: string;
+  created_at: string;
+}
+
 export interface AnnouncementItem {
+  id: string;
   title: string;
   content: string;
+  image_url?: string | null;
   priority: string;
   date: string;
   publisher?: string;
-  audience?: string;
+  likes: number;
+  reactions: { like: number; love: number; wow: number; haha: number };
+  comments: AnnouncementComment[];
 }
 
 export interface GradeItem {
@@ -146,6 +158,26 @@ export class DashboardService {
 
   getStudentAnnouncements(departmentId: number): Observable<{ success: boolean; announcements: AnnouncementItem[] }> {
     return this.http.get<any>(`${this.API}/student/announcements`, { params: { department_id: String(departmentId) } });
+  }
+
+  getAllAnnouncements(departmentId: number): Observable<{ success: boolean; announcements: AnnouncementItem[] }> {
+    return this.http.get<any>(`${this.API}/announcements`, { params: { department_id: String(departmentId) } });
+  }
+
+  getAnnouncement(id: string): Observable<{ success: boolean; announcement: AnnouncementItem }> {
+    return this.http.get<any>(`${this.API}/announcements/${id}`);
+  }
+
+  likeAnnouncement(id: string, studentNo: string): Observable<{ success: boolean; likes: number; liked: boolean }> {
+    return this.http.post<any>(`${this.API}/announcements/${id}/like`, { student_no: studentNo });
+  }
+
+  reactAnnouncement(id: string, studentNo: string, reaction: string): Observable<{ success: boolean; reactions: any; my_reaction: string | null }> {
+    return this.http.post<any>(`${this.API}/announcements/${id}/react`, { student_no: studentNo, reaction });
+  }
+
+  commentAnnouncement(id: string, studentNo: string, studentName: string, text: string): Observable<{ success: boolean; comment: AnnouncementComment; total: number }> {
+    return this.http.post<any>(`${this.API}/announcements/${id}/comment`, { student_no: studentNo, student_name: studentName, text });
   }
 
   getStudentGrades(studentNo: string): Observable<{ success: boolean; grades: GradeItem[] }> {
