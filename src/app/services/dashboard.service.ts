@@ -277,6 +277,10 @@ export class DashboardService {
     return this.http.get<any>(`${this.API}/manager/stats`);
   }
 
+  getManagerAttendanceOverview(): Observable<any> {
+    return this.http.get<any>(`${this.API}/manager/attendance-overview`);
+  }
+
   getManagerActivities(): Observable<{ success: boolean; activities: ActivityItem[] }> {
     return this.http.get<any>(`${this.API}/manager/activities`);
   }
