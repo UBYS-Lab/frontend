@@ -1,9 +1,10 @@
 import { RenderMode, ServerRoute } from '@angular/ssr';
 
 export const serverRoutes: ServerRoute[] = [
+  { path: 'qr-checkin',                    renderMode: RenderMode.Client },
   { path: 'student/dashboard',             renderMode: RenderMode.Client },
   { path: 'student/course-registration',   renderMode: RenderMode.Client },
-  { path: 'instructor/dashboard', renderMode: RenderMode.Client },
-  { path: 'manager/dashboard',    renderMode: RenderMode.Client },
-  { path: '**',                   renderMode: RenderMode.Prerender },
+  { path: 'instructor/dashboard',          renderMode: RenderMode.Client },
+  { path: 'manager/dashboard',             renderMode: RenderMode.Client },
+  { path: '**',                            renderMode: RenderMode.Client },
 ];

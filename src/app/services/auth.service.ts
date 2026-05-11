@@ -31,7 +31,10 @@ interface LoginResponse {
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private readonly API_URL = 'http://127.0.0.1:8001/api';
+  private get API_URL(): string {
+    if (typeof window === 'undefined') return 'http://127.0.0.1:8001/api';
+    return '/api';
+  }
   private readonly STORAGE_KEY = 'ubys_user';
 
   private http = inject(HttpClient);

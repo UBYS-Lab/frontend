@@ -4,11 +4,13 @@ import { StudentDashboardComponent } from './pages/student-dashboard/student-das
 import { InstructorDashboardComponent } from './pages/instructor-dashboard/instructor-dashboard';
 import { ManagerDashboardComponent } from './pages/manager-dashboard/manager-dashboard';
 import { CourseRegistrationComponent } from './pages/course-registration/course-registration';
+import { QrCheckinComponent } from './pages/qr-checkin/qr-checkin';
 import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
   { path: '',      component: LoginComponent },
   { path: 'login', component: LoginComponent },
+  { path: 'qr-checkin', component: QrCheckinComponent },
   {
     path: 'student/dashboard',
     component: StudentDashboardComponent,
