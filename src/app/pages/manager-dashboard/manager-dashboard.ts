@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService, UserInfo } from '../../services/auth.service';
 import { DashboardService, ManagerStats, ActivityItem, AnnouncementItem } from '../../services/dashboard.service';
@@ -6,7 +7,7 @@ import { DashboardService, ManagerStats, ActivityItem, AnnouncementItem } from '
 @Component({
   selector: 'app-manager-dashboard',
   standalone: true,
-  imports: [],
+  imports: [CommonModule],
   templateUrl: './manager-dashboard.html',
   styleUrl: './manager-dashboard.css',
 })
@@ -18,6 +19,12 @@ export class ManagerDashboardComponent implements OnInit {
   stats: ManagerStats = { students: 0, instructors: 0, courses: 0, departments: 0 };
   recentActivities: ActivityItem[] = [];
   announcements: AnnouncementItem[] = [];
+
+  attOverview: any[] = [];
+  attOverviewTotal = 0;
+  attOverviewLoading = false;
+
+  private cdr = inject(ChangeDetectorRef);
 
   statCards: { label: string; key: keyof ManagerStats; color: string }[] = [
     { label: 'TOPLAM ÖĞRENCİ',  key: 'students',    color: 'blue'   },
@@ -63,7 +70,21 @@ export class ManagerDashboardComponent implements OnInit {
     return this.user?.full_name?.split(' ').slice(-1)[0] ?? '';
   }
 
-  setNav(nav: string) { this.activeNav = nav; }
+  setNav(nav: string) {
+    this.activeNav = nav;
+    if (nav === 'devamsizlik' && this.attOverview.length === 0 && !this.attOverviewLoading) {
+      this.attOverviewLoading = true;
+      this.dashService.getManagerAttendanceOverview().subscribe({
+        next: (res) => {
+          this.attOverview = res.courses ?? [];
+          this.attOverviewTotal = res.total_sessions ?? 0;
+          this.attOverviewLoading = false;
+          this.cdr.detectChanges();
+        },
+        error: () => { this.attOverviewLoading = false; this.cdr.detectChanges(); },
+      });
+    }
+  }
 
   logout() {
     this.authService.logout();

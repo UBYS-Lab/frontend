@@ -97,3 +97,34 @@
 .ann-title { margin: 0 0 3px; font-size: 12px; font-weight: 600; color: #101828; line-height: 1.4; }
 .ann-date  { margin: 0; font-size: 10px; color: #667085; font-weight: 600; letter-spacing: 0.6px; }
 .empty-msg { margin: 16px 0; font-size: 13px; color: #98a2b3; text-align: center; }
+
+/* ── Devamsızlık Sekmesi ───────────────────────────────── */
+.mgr-section-title { margin: 0 0 4px; font-size: 20px; font-weight: 800; color: #101828; }
+.mgr-section-sub   { margin: 0; font-size: 13px; color: #667085; }
+.section-header    { margin-bottom: 20px; }
+.mgr-loading { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 60px; color: #667085; }
+.mgr-spinner { width: 28px; height: 28px; border: 3px solid #e4e7ec; border-top-color: #3b5bdb;
+  border-radius: 50%; animation: spin .7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.mgr-att-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+.mgr-att-card { background: #fff; border: 1px solid #e4e7ec; border-radius: 14px; padding: 18px; }
+.mgr-att-card.mgr-att-danger { border-color: #fecaca; background: #fff5f5; }
+.mgr-att-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px; }
+.mgr-att-code { font-size: 13px; font-weight: 800; color: #344054; }
+.mgr-att-section { margin-left: 8px; font-size: 11px; font-weight: 600; color: #98a2b3; }
+.mgr-att-rate { font-size: 18px; font-weight: 900; }
+.mgr-att-rate.rate-ok   { color: #16a34a; }
+.mgr-att-rate.rate-warn { color: #dc2626; }
+.mgr-att-name { margin: 0 0 10px; font-size: 12px; color: #667085; }
+.mgr-att-bar-wrap { margin-bottom: 10px; }
+.mgr-att-bar  { height: 6px; background: #f2f4f7; border-radius: 99px; overflow: hidden; }
+.mgr-att-fill { height: 100%; border-radius: 99px; transition: width .4s; }
+.mgr-att-fill.fill-ok   { background: #22c55e; }
+.mgr-att-fill.fill-warn { background: #ef4444; }
+.mgr-att-stats { display: flex; gap: 8px; flex-wrap: wrap; font-size: 11px; font-weight: 700; }
+.mgr-st.present  { color: #16a34a; }
+.mgr-st.late     { color: #d97706; }
+.mgr-st.absent   { color: #dc2626; }
+.mgr-st.sessions { color: #667085; }
+.mgr-att-warn { margin-top: 8px; padding: 6px 10px; background: #fef2f2; border-radius: 8px;
+  font-size: 11px; font-weight: 700; color: #dc2626; }

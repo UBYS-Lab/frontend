@@ -283,14 +283,43 @@
                     <button class="att-start-btn" [disabled]="!!loadingCourseCode" (click)="startSession(c)">
                       @if (loadingCourseCode === c.course_code) {
                         <span class="att-start-spin"></span> Başlatılıyor...
-                      } @else {
-                        ▶ Yoklama Başlat
-                      }
+                      } @else { ▶ Yoklama Başlat }
                     </button>
+                    <button class="att-history-btn" (click)="showAttHistory(c)">📋 Geçmiş</button>
                   </div>
                 </div>
               }
             </div>
+
+            @if (attHistoryCourse) {
+              <div class="att-history-panel">
+                <div class="att-history-head">
+                  <strong>{{ attHistoryCourse.course_code }} · Şube {{ attHistoryCourse.section }} — Geçmiş Yoklamalar</strong>
+                  <button class="att-history-close" (click)="attHistoryCourse = null">✕</button>
+                </div>
+                @if (attHistoryLoading) {
+                  <p class="empty-msg">Yükleniyor...</p>
+                } @else if (attHistory.length === 0) {
+                  <p class="empty-msg">Henüz yoklama oturumu yok.</p>
+                } @else {
+                  <table class="att-hist-table">
+                    <thead><tr><th>Tarih</th><th>Hafta</th><th>Var</th><th>Geç</th><th>Yok</th><th>Durum</th></tr></thead>
+                    <tbody>
+                      @for (s of attHistory; track s.session_id) {
+                        <tr>
+                          <td>{{ s.date }}</td>
+                          <td>H{{ s.week_number }}</td>
+                          <td class="col-present">{{ s.present_count }}</td>
+                          <td class="col-late">{{ s.late_count }}</td>
+                          <td class="col-absent">{{ s.absent_count }}</td>
+                          <td><span class="att-sc" [class.sc-closed]="s.is_closed">{{ s.is_closed ? 'Kapatıldı' : 'Açık' }}</span></td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                }
+              </div>
+            }
 
           } @else {
             <!-- Aktif Oturum -->

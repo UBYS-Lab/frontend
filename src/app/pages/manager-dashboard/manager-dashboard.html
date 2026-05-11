@@ -37,6 +37,10 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6"  y1="20" x2="6"  y2="14"/></svg>
           Raporlar
         </button>
+        <button class="nav-item" [class.active]="activeNav==='devamsizlik'" (click)="setNav('devamsizlik')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><circle cx="12" cy="12" r="10"/></svg>
+          Devamsızlık Takibi
+        </button>
       </nav>
 
       <div class="sidebar-bottom">
@@ -73,6 +77,48 @@
       </header>
 
       <main class="content">
+        @if (activeNav === 'devamsizlik') {
+          <div class="section-header">
+            <div>
+              <h2 class="mgr-section-title">Devamsızlık İstatistikleri</h2>
+              <p class="mgr-section-sub">{{ attOverviewTotal }} kapalı yoklama oturumu · Ders bazında katılım oranları</p>
+            </div>
+          </div>
+          @if (attOverviewLoading) {
+            <div class="mgr-loading"><div class="mgr-spinner"></div><p>Yükleniyor...</p></div>
+          } @else if (attOverview.length === 0) {
+            <p class="empty-msg">Henüz kapalı yoklama oturumu yok.</p>
+          } @else {
+            <div class="mgr-att-grid">
+              @for (c of attOverview; track c.course_code + c.section) {
+                <div class="mgr-att-card" [class.mgr-att-danger]="c.attendance_rate < 70">
+                  <div class="mgr-att-top">
+                    <div>
+                      <span class="mgr-att-code">{{ c.course_code }}</span>
+                      <span class="mgr-att-section">Şube {{ c.section }}</span>
+                    </div>
+                    <span class="mgr-att-rate" [class.rate-ok]="c.attendance_rate >= 70" [class.rate-warn]="c.attendance_rate < 70">%{{ c.attendance_rate }}</span>
+                  </div>
+                  <p class="mgr-att-name">{{ c.course_name }}</p>
+                  <div class="mgr-att-bar-wrap">
+                    <div class="mgr-att-bar"><div class="mgr-att-fill" [style.width.%]="c.attendance_rate" [class.fill-ok]="c.attendance_rate >= 70" [class.fill-warn]="c.attendance_rate < 70"></div></div>
+                  </div>
+                  <div class="mgr-att-stats">
+                    <span class="mgr-st present">✓ {{ c.total_present }} Var</span>
+                    <span class="mgr-st late">⏱ {{ c.total_late }} Geç</span>
+                    <span class="mgr-st absent">✗ {{ c.total_absent }} Yok</span>
+                    <span class="mgr-st sessions">{{ c.session_count }} Oturum</span>
+                  </div>
+                  @if (c.attendance_rate < 70) {
+                    <div class="mgr-att-warn">⚠ Bu derste devamsızlık yüksek!</div>
+                  }
+                </div>
+              }
+            </div>
+          }
+        }
+
+        @if (activeNav !== 'devamsizlik') {
         <!-- Welcome row -->
         <div class="welcome-row">
           <div class="welcome-left">
@@ -178,6 +224,7 @@
             }
           </div>
         </div>
+        } <!-- /activeNav !== devamsizlik -->
       </main>
     </div>
   </div>

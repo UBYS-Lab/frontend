@@ -34,6 +34,9 @@ export class InstructorDashboardComponent implements OnInit, OnDestroy {
   private attTimerRef: any = null;
   attCourseReport: any[] = [];
   attReportLoading = false;
+  attHistoryCourse: CourseItem | null = null;
+  attHistory: any[] = [];
+  attHistoryLoading = false;
   attStudents: { student_no: string; name: string; status: 'present' | 'absent' | 'late' }[] = [];
   private attPollRef: any = null;
   loadingCourseCode = '';
@@ -139,6 +142,17 @@ export class InstructorDashboardComponent implements OnInit, OnDestroy {
 
   get totalStudents(): number {
     return this.courses.reduce((s, c) => s + c.enrolled_count, 0);
+  }
+
+  showAttHistory(course: CourseItem): void {
+    this.attHistoryCourse = course;
+    this.attHistoryLoading = true;
+    this.attHistory = [];
+    this.cdr.detectChanges();
+    this.dashService.getCourseAttendanceReport(course.course_code, course.section).subscribe({
+      next: (res) => { this.attHistory = res.sessions ?? []; this.attHistoryLoading = false; this.cdr.detectChanges(); },
+      error: () => { this.attHistoryLoading = false; this.cdr.detectChanges(); },
+    });
   }
 
   setNav(nav: string) {
