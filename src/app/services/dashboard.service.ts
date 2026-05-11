@@ -148,8 +148,18 @@ export interface RegistrationRequest {
 
 @Injectable({ providedIn: 'root' })
 export class DashboardService {
-  private readonly API = 'http://127.0.0.1:8001/api';
+  private get API(): string {
+    if (typeof window === 'undefined') {
+      const base = (typeof process !== 'undefined' && process.env?.['BACKEND_URL']) ?? 'http://127.0.0.1:8001';
+      return `${base}/api`;
+    }
+    return '/api';
+  }
   private http = inject(HttpClient);
+
+  getHostIp(): Observable<{ ip: string; port: number }> {
+    return this.http.get<any>(`${this.API}/host-ip`);
+  }
 
   // ── Student ──────────────────────────────────────────────────
   getStudentSchedule(studentNo: string): Observable<{ success: boolean; semester: string; schedule: ScheduleItem[] }> {

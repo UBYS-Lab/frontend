@@ -1,0 +1,98 @@
+<div class="qrc-wrap">
+  <div class="qrc-card">
+    <!-- Logo -->
+    <div class="qrc-brand">
+      <div class="qrc-brand-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="22" height="22">
+          <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+          <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+        </svg>
+      </div>
+      <span class="qrc-brand-name">UBYS</span>
+    </div>
+
+    <!-- Login -->
+    @if (state === 'login') {
+      <div class="qrc-state">
+        <h2 class="qrc-title" style="font-size:18px">Yoklamaya Katıl</h2>
+        <p class="qrc-sub" style="margin-bottom:16px">Giriş yaparak yoklamanızı otomatik tamamlayın</p>
+        @if (token) { <div class="qrc-token-badge">{{ token }}</div> }
+        <div class="qrc-field">
+          <label class="qrc-label" for="lid">Öğrenci Numarası</label>
+          <input class="qrc-input" id="lid" type="text" placeholder="Öğrenci numaranız"
+                 [(ngModel)]="loginId" (keyup.enter)="submitLogin()" autocomplete="username">
+        </div>
+        <div class="qrc-field">
+          <label class="qrc-label" for="lpw">Şifre</label>
+          <input class="qrc-input" id="lpw" type="password" placeholder="Şifreniz"
+                 [(ngModel)]="loginPw" (keyup.enter)="submitLogin()" autocomplete="current-password">
+        </div>
+        @if (loginError) {
+          <p class="qrc-error">{{ loginError }}</p>
+        }
+        <button class="qrc-btn primary" (click)="submitLogin()"
+                [disabled]="loginLoading || !loginId.trim() || !loginPw.trim()">
+          @if (loginLoading) { <span class="qrc-spin"></span> Giriş Yapılıyor... }
+          @else { Giriş Yap ve Yoklamayı Tamamla }
+        </button>
+      </div>
+    }
+
+    <!-- Loading -->
+    @if (state === 'loading') {
+      <div class="qrc-state">
+        <div class="qrc-spinner"></div>
+        <p class="qrc-msg">Yoklamanız kaydediliyor...</p>
+      </div>
+    }
+
+    <!-- Success -->
+    @if (state === 'success') {
+      <div class="qrc-state">
+        <div class="qrc-icon success">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="32" height="32">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+        </div>
+        <h2 class="qrc-title">Yoklama Alındı!</h2>
+        @if (courseName) { <p class="qrc-course">{{ courseName }}</p> }
+        @if (date) { <p class="qrc-date">{{ date }}</p> }
+        @if (message) { <p class="qrc-sub">{{ message }}</p> }
+        <button class="qrc-btn primary" style="margin-top:8px" (click)="goToDashboard()">Panele Git</button>
+      </div>
+    }
+
+    <!-- Already -->
+    @if (state === 'already') {
+      <div class="qrc-state">
+        <div class="qrc-icon info">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="32" height="32">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="8" x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+        </div>
+        <h2 class="qrc-title">Zaten Kayıtlısınız</h2>
+        @if (courseName) { <p class="qrc-course">{{ courseName }}</p> }
+        @if (message) { <p class="qrc-sub">{{ message }}</p> }
+        <button class="qrc-btn primary" style="margin-top:8px" (click)="goToDashboard()">Panele Git</button>
+      </div>
+    }
+
+    <!-- Error -->
+    @if (state === 'error') {
+      <div class="qrc-state">
+        <div class="qrc-icon error">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="32" height="32">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="15" y1="9" x2="9" y2="15"/>
+            <line x1="9" y1="9" x2="15" y2="15"/>
+          </svg>
+        </div>
+        <h2 class="qrc-title">Hata</h2>
+        <p class="qrc-sub">{{ message }}</p>
+        <button class="qrc-btn secondary" (click)="retry()">Tekrar Dene</button>
+      </div>
+    }
+  </div>
+</div>

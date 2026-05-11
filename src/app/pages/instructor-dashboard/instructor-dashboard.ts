@@ -1,4 +1,4 @@
-import { Component, OnInit, PLATFORM_ID, inject, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, PLATFORM_ID, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -12,7 +12,7 @@ import { DashboardService, CourseItem, PendingGradeItem, RegistrationRequest, Co
   templateUrl: './instructor-dashboard.html',
   styleUrl: './instructor-dashboard.css',
 })
-export class InstructorDashboardComponent implements OnInit {
+export class InstructorDashboardComponent implements OnInit, OnDestroy {
   user: UserInfo | null = null;
   activeNav = 'panel';
   loading = true;
@@ -34,6 +34,12 @@ export class InstructorDashboardComponent implements OnInit {
   private attTimerRef: any = null;
   attCourseReport: any[] = [];
   attReportLoading = false;
+  attStudents: { student_no: string; name: string; status: 'present' | 'absent' | 'late' }[] = [];
+  private attPollRef: any = null;
+  loadingCourseCode = '';
+  serverLanIp = '';
+  ngrokOrigin = '';
+  ngrokChecked = false;
 
   // Not girişi
   selectedGradeCourse: CourseItem | null = null;
@@ -55,6 +61,16 @@ export class InstructorDashboardComponent implements OnInit {
     if (!isPlatformBrowser(this.platformId)) return;
     this.user = this.authService.getUser();
     if (!this.user) return;
+
+    this.dashService.getHostIp().subscribe({
+      next: (res) => { this.serverLanIp = res.ip; this.cdr.detectChanges(); },
+    });
+
+    fetch('/ngrok-url')
+      .then(r => r.json())
+      .then((d: any) => { if (d?.url) this.ngrokOrigin = d.url; })
+      .catch(() => {})
+      .finally(() => { this.ngrokChecked = true; this.cdr.detectChanges(); });
 
     this.dashService.getInstructorCourses(this.user.identifier).subscribe({
       next: (res) => {
@@ -127,12 +143,56 @@ export class InstructorDashboardComponent implements OnInit {
 
   setNav(nav: string) {
     this.activeNav = nav;
-    if (nav !== 'notlar')    { this.selectedGradeCourse = null; this.gradeStudents = []; }
-    if (nav !== 'devamsizlik') { this.attSession = null; this.attCourse = null; clearInterval(this.attTimerRef); }
+    if (nav !== 'notlar') { this.selectedGradeCourse = null; this.gradeStudents = []; }
+    if (nav === 'devamsizlik') {
+      const saved = localStorage.getItem('att_session_id');
+      if (saved && !this.attSession) {
+        this.dashService.getSessionStatus(saved).subscribe({
+          next: (res) => {
+            if (res.success && !res.is_closed) {
+              this.attSession = res;
+              if (res.students) {
+                this.attStudents = res.students;
+                this.attStudentStatus = Object.fromEntries(
+                  res.students.map((s: any) => [s.student_no, s.status])
+                );
+              }
+              if (res.expires_at) {
+                this.attQrExpiry = new Date(res.expires_at);
+                this.startQrTimer();
+              }
+              this.startPolling(saved);
+              this.cdr.detectChanges();
+            } else {
+              localStorage.removeItem('att_session_id');
+            }
+          },
+          error: () => localStorage.removeItem('att_session_id'),
+        });
+      }
+    } else if (nav !== 'devamsizlik') {
+      this.attSession = null;
+      this.attCourse = null;
+      this.attStudents = [];
+      clearInterval(this.attTimerRef);
+      clearInterval(this.attPollRef);
+    }
+  }
+
+  get qrUrl(): string {
+    if (!this.attSession?.qr_token) return '';
+    const origin = this.ngrokOrigin || window.location.origin;
+    return `${origin}/qr-checkin?token=${this.attSession.qr_token}`;
+  }
+
+  get qrImageUrl(): string {
+    const url = this.qrUrl;
+    return url ? `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(url)}` : '';
   }
 
   startSession(course: CourseItem): void {
-    if (!this.user || this.attSessionLoading) return;
+    if (!this.user || this.loadingCourseCode) return;
+    this.loadingCourseCode = course.course_code;
     this.attSessionLoading = true;
     this.dashService.createAttendanceSession(this.user.identifier, course.course_code, course.section).subscribe({
       next: (res) => {
@@ -140,12 +200,16 @@ export class InstructorDashboardComponent implements OnInit {
         this.attSession = res;
         this.attQrExpiry = new Date(res.expires_at);
         this.attStudentStatus = {};
+        this.attStudents = [];
         this.attSessionLoading = false;
+        this.loadingCourseCode = '';
+        localStorage.setItem('att_session_id', res.session_id);
         this.startQrTimer();
+        this.startPolling(res.session_id);
         this.refreshSession(res.session_id);
         this.cdr.detectChanges();
       },
-      error: () => { this.attSessionLoading = false; this.cdr.detectChanges(); },
+      error: () => { this.attSessionLoading = false; this.loadingCourseCode = ''; this.cdr.detectChanges(); },
     });
   }
 
@@ -153,12 +217,14 @@ export class InstructorDashboardComponent implements OnInit {
     this.dashService.getSessionStatus(sessionId).subscribe({
       next: (res) => {
         this.attSession = res;
-        const all = [
-          ...res.present_students.map((n: string) => [n, 'present']),
-          ...res.absent_students.map((n: string) => [n, 'absent']),
-          ...res.late_students.map((n: string) => [n, 'late']),
-        ];
-        this.attStudentStatus = Object.fromEntries(all);
+        if (res.students) {
+          this.attStudents = res.students;
+          this.attStudentStatus = Object.fromEntries(
+            res.students.map((s: any) => [s.student_no, s.status])
+          );
+        }
+        if (res.expires_at) this.attQrExpiry = new Date(res.expires_at);
+        if (res.is_closed) { clearInterval(this.attPollRef); clearInterval(this.attTimerRef); }
         this.cdr.detectChanges();
       },
     });
@@ -175,6 +241,8 @@ export class InstructorDashboardComponent implements OnInit {
     this.dashService.closeSession(this.attSession.session_id).subscribe({
       next: () => {
         clearInterval(this.attTimerRef);
+        clearInterval(this.attPollRef);
+        localStorage.removeItem('att_session_id');
         this.attSession.is_closed = true;
         this.cdr.detectChanges();
       },
@@ -189,6 +257,14 @@ export class InstructorDashboardComponent implements OnInit {
     });
   }
 
+  private startPolling(sessionId: string): void {
+    clearInterval(this.attPollRef);
+    this.attPollRef = setInterval(() => {
+      if (!this.attSession?.is_closed) this.refreshSession(sessionId);
+      else clearInterval(this.attPollRef);
+    }, 5000);
+  }
+
   private startQrTimer(): void {
     clearInterval(this.attTimerRef);
     this.attTimerRef = setInterval(() => {
@@ -199,6 +275,11 @@ export class InstructorDashboardComponent implements OnInit {
       this.attQrTimer = diff > 0 ? `${m}:${s.toString().padStart(2,'0')}` : 'Süresi doldu';
       this.cdr.detectChanges();
     }, 1000);
+  }
+
+  ngOnDestroy(): void {
+    clearInterval(this.attTimerRef);
+    clearInterval(this.attPollRef);
   }
 
   selectGradeCourse(course: CourseItem): void {

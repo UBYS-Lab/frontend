@@ -280,8 +280,12 @@
                     <p class="att-c-meta">Şube {{ c.section }} · {{ c.enrolled_count }} öğrenci</p>
                   </div>
                   <div class="att-course-actions">
-                    <button class="att-start-btn" [disabled]="attSessionLoading" (click)="startSession(c)">
-                      {{ attSessionLoading ? 'Başlatılıyor...' : '▶ Yoklama Başlat' }}
+                    <button class="att-start-btn" [disabled]="!!loadingCourseCode" (click)="startSession(c)">
+                      @if (loadingCourseCode === c.course_code) {
+                        <span class="att-start-spin"></span> Başlatılıyor...
+                      } @else {
+                        ▶ Yoklama Başlat
+                      }
                     </button>
                   </div>
                 </div>
@@ -302,46 +306,66 @@
               }
             </div>
 
-            <!-- QR Kodu -->
-            @if (!attSession.is_closed && attSession.qr_token) {
-              <div class="att-qr-box">
-                <div class="att-qr-left">
-                  <div class="att-qr-code" id="qrCodeContainer">
-                    <img [src]="'https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=' + attSession.qr_token" alt="QR" width="160" height="160">
+            <!-- İki Kolon: QR sol | Öğrenci listesi sağ -->
+            <div class="att-two-col" [class.att-single-col]="attSession.is_closed">
+
+              <!-- Sol: QR Kutusu -->
+              @if (!attSession.is_closed && attSession.qr_token) {
+                <div class="att-qr-col">
+                  <div class="att-qr-code">
+                    @if (!ngrokChecked) {
+                      <div style="width:160px;height:160px;display:flex;align-items:center;justify-content:center;background:#f8f9fc;border-radius:8px;color:#667085;font-size:12px">QR yükleniyor...</div>
+                    } @else if (qrImageUrl) {
+                      <img [src]="qrImageUrl" alt="QR" width="160" height="160">
+                    }
                   </div>
-                </div>
-                <div class="att-qr-info">
-                  <p class="att-qr-label">Öğrencilere gösterilecek QR Kodu</p>
-                  <p class="att-qr-token">Token: <code>{{ attSession.qr_token }}</code></p>
                   <p class="att-qr-timer" [class.timer-warn]="attQrTimer === 'Süresi doldu'">
                     ⏱ {{ attQrTimer || 'Hesaplanıyor...' }}
                   </p>
-                  <p class="att-qr-sub">Öğrenciler Yoklama sayfasından bu kodu girerek katılabilir</p>
-                  <div class="att-live-counts">
-                    <span class="att-lc present">✓ {{ attSession.present_students?.length ?? 0 }} Var</span>
-                    <span class="att-lc absent">✗ {{ attSession.absent_students?.length ?? 0 }} Yok</span>
-                    <button class="att-refresh-btn" (click)="refreshSession(attSession.session_id)">↻ Yenile</button>
+                  <div class="att-short-code-wrap" style="justify-content:center">
+                    <span class="att-short-label">KOD</span>
+                    <span class="att-short-code">{{ attSession.qr_token }}</span>
                   </div>
-                </div>
-              </div>
-            }
-
-            <!-- Öğrenci Listesi -->
-            <div class="att-student-list">
-              <div class="att-list-head">
-                <span>Öğrenci</span>
-                <span>Durum</span>
-              </div>
-              @for (no of (attSession.present_students ?? []).concat(attSession.absent_students ?? []).concat(attSession.late_students ?? []); track no) {
-                <div class="att-student-row">
-                  <span class="att-s-no">{{ no }}</span>
-                  <div class="att-mark-btns">
-                    <button class="att-btn present-btn" [class.active]="attStudentStatus[no] === 'present'" (click)="markAtt(no, 'present')">✓ Var</button>
-                    <button class="att-btn late-btn"    [class.active]="attStudentStatus[no] === 'late'"    (click)="markAtt(no, 'late')">⏱ Geç</button>
-                    <button class="att-btn absent-btn"  [class.active]="attStudentStatus[no] === 'absent'"  (click)="markAtt(no, 'absent')">✗ Yok</button>
+                  <div class="att-live-counts" style="justify-content:center;margin-top:8px">
+                    <span class="att-lc present">✓ {{ attSession.present_students?.length ?? 0 }}</span>
+                    <span class="att-lc absent">✗ {{ attSession.absent_students?.length ?? 0 }}</span>
+                    <span class="att-lc late">⏱ {{ attSession.late_students?.length ?? 0 }}</span>
+                  </div>
+                  <div class="att-poll-badge" style="justify-content:center;margin-top:6px">
+                    <span class="poll-dot"></span> Canlı
                   </div>
                 </div>
               }
+
+              <!-- Sağ: Öğrenci Listesi -->
+              <div class="att-list-col">
+                @if (attStudents.length > 0) {
+                  <div class="att-student-list">
+                    <div class="att-list-head">
+                      <span>Öğrenciler ({{ attStudents.length }})</span>
+                      <span>Durum İşaretle</span>
+                    </div>
+                    @for (s of attStudents; track s.student_no) {
+                      <div class="att-student-row"
+                           [class.row-present]="attStudentStatus[s.student_no]==='present'"
+                           [class.row-late]="attStudentStatus[s.student_no]==='late'">
+                        <div class="att-s-info">
+                          <span class="att-s-no">{{ s.student_no }}</span>
+                          <span class="att-s-name">{{ s.name }}</span>
+                        </div>
+                        <div class="att-mark-btns">
+                          <button class="att-btn present-btn" [class.active]="attStudentStatus[s.student_no]==='present'" (click)="markAtt(s.student_no,'present')">✓ Var</button>
+                          <button class="att-btn late-btn"    [class.active]="attStudentStatus[s.student_no]==='late'"    (click)="markAtt(s.student_no,'late')">⏱ Geç</button>
+                          <button class="att-btn absent-btn"  [class.active]="attStudentStatus[s.student_no]==='absent'"  (click)="markAtt(s.student_no,'absent')">✗ Yok</button>
+                        </div>
+                      </div>
+                    }
+                  </div>
+                } @else {
+                  <p class="empty-msg" style="text-align:center;padding:32px 0">Öğrenci listesi yükleniyor...</p>
+                }
+              </div>
+
             </div>
           }
         }
