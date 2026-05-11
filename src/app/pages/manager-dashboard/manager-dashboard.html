@@ -77,12 +77,354 @@
       </header>
 
       <main class="content">
-        @if (activeNav === 'devamsizlik') {
-          <div class="section-header">
-            <div>
-              <h2 class="mgr-section-title">Devamsızlık İstatistikleri</h2>
-              <p class="mgr-section-sub">{{ attOverviewTotal }} kapalı yoklama oturumu · Ders bazında katılım oranları</p>
+
+        <!-- ─── PANEL ───────────────────────────────────────── -->
+        @if (activeNav === 'panel') {
+          <div class="welcome-row">
+            <div class="welcome-left">
+              <p class="panel-label">YÖNETİCİ PANELİ</p>
+              <h1 class="welcome-title">Hoş geldiniz, {{ roleLabel }} {{ firstName }}.</h1>
+              <p class="welcome-sub">2024-2025 Bahar Dönemi · Kastamonu Üniversitesi</p>
             </div>
+            <div class="new-ann-btn-wrap">
+              <button class="new-ann-btn" (click)="setNav('duyurular')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Duyuru Yayınla
+              </button>
+            </div>
+          </div>
+          <div class="stats-grid">
+            @for (s of statCards; track s.key) {
+              <div class="stat-card" [class]="'stat-card-' + s.color">
+                <p class="stat-label">{{ s.label }}</p>
+                <p class="stat-value">{{ loading ? '—' : stats[s.key] }}</p>
+              </div>
+            }
+          </div>
+          <div class="quick-grid">
+            <div class="quick-card" (click)="setNav('ogrenciler')">
+              <div class="quick-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></div>
+              <p class="quick-title">Öğrenci Yönetimi</p><p class="quick-sub">Kayıt, durum ve bilgiler</p>
+            </div>
+            <div class="quick-card" (click)="setNav('akademisyenler')">
+              <div class="quick-icon purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+              <p class="quick-title">Akademisyen Yönetimi</p><p class="quick-sub">Kadro ve atamalar</p>
+            </div>
+            <div class="quick-card" (click)="setNav('dersler')">
+              <div class="quick-icon teal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg></div>
+              <p class="quick-title">Ders Yönetimi</p><p class="quick-sub">Katalog ve açılan dersler</p>
+            </div>
+            <div class="quick-card" (click)="setNav('duyurular')">
+              <div class="quick-icon orange"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
+              <p class="quick-title">Duyuru Yayınla</p><p class="quick-sub">Tüm kullanıcılara duyuru</p>
+            </div>
+            <div class="quick-card" (click)="setNav('raporlar')">
+              <div class="quick-icon green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
+              <p class="quick-title">Raporlar</p><p class="quick-sub">Akademik istatistikler</p>
+            </div>
+            <div class="quick-card" (click)="setNav('ayarlar')">
+              <div class="quick-icon gray"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></div>
+              <p class="quick-title">Sistem Ayarları</p><p class="quick-sub">Dönem ve yapılandırma</p>
+            </div>
+          </div>
+          <div class="bottom-row">
+            <div class="activity-card">
+              <div class="card-head"><h3>Son İşlemler</h3></div>
+              @if (recentActivities.length === 0) {
+                <p class="empty-msg">Henüz işlem yok.</p>
+              } @else {
+                @for (act of recentActivities; track act.time + act.text) {
+                  <div class="activity-item">
+                    <div class="act-dot" [class]="'act-dot-' + act.type"></div>
+                    <div class="act-info"><p class="act-text">{{ act.text }}</p></div>
+                    <p class="act-time">{{ act.time }}</p>
+                  </div>
+                }
+              }
+            </div>
+            <div class="announce-card">
+              <div class="card-head"><h3>Aktif Duyurular</h3><button class="new-mini-btn" (click)="setNav('duyurular')">+ Yeni</button></div>
+              @if (announcements.length === 0) {
+                <p class="empty-msg">Duyuru bulunamadı.</p>
+              } @else {
+                @for (ann of announcements; track ann.title) {
+                  <div class="ann-item">
+                    <div class="ann-left">
+                      <span class="priority-dot" [class.important]="ann.priority==='high'"></span>
+                      <div><p class="ann-title">{{ ann.title }}</p><p class="ann-date">{{ ann.date }}</p></div>
+                    </div>
+                  </div>
+                }
+              }
+            </div>
+          </div>
+        }
+
+        <!-- ─── ÖĞRENCİ YÖNETİMİ ───────────────────────────── -->
+        @if (activeNav === 'ogrenciler') {
+          <div class="mgr-page-header">
+            <div><h2 class="mgr-section-title">Öğrenci Yönetimi</h2><p class="mgr-section-sub">{{ students.length }} öğrenci</p></div>
+          </div>
+          <div class="mgr-toolbar">
+            <input class="mgr-search" [(ngModel)]="studentSearch" placeholder="İsim veya numara ara..." (keyup.enter)="loadStudents()">
+            <select class="mgr-select" [(ngModel)]="studentStatusFilter" (change)="loadStudents()">
+              <option value="">Tüm Durumlar</option>
+              <option value="active">Aktif</option>
+              <option value="passive">Pasif</option>
+              <option value="graduated">Mezun</option>
+            </select>
+            <button class="mgr-btn-primary" (click)="loadStudents()">Ara</button>
+          </div>
+          @if (editingStudent) {
+            <div class="mgr-edit-panel">
+              <h4>{{ editingStudent.full_name }} — Düzenle</h4>
+              <div class="mgr-edit-row">
+                <label>Durum</label>
+                <select [(ngModel)]="editingStudent.status">
+                  <option value="active">Aktif</option><option value="passive">Pasif</option><option value="graduated">Mezun</option>
+                </select>
+              </div>
+              <div class="mgr-edit-row">
+                <label>Sınıf</label>
+                <select [(ngModel)]="editingStudent.class_year">
+                  <option [value]="1">1. Sınıf</option><option [value]="2">2. Sınıf</option><option [value]="3">3. Sınıf</option><option [value]="4">4. Sınıf</option>
+                </select>
+              </div>
+              <div class="mgr-edit-actions">
+                <button class="mgr-btn-primary" (click)="saveStudent()">Kaydet</button>
+                <button class="mgr-btn-ghost" (click)="editingStudent = null">İptal</button>
+              </div>
+            </div>
+          }
+          @if (studentsLoading) {
+            <div class="mgr-loading"><div class="mgr-spinner"></div><p>Yükleniyor...</p></div>
+          } @else if (students.length === 0) {
+            <p class="empty-msg">Öğrenci bulunamadı.</p>
+          } @else {
+            <div class="mgr-table-wrap">
+              <table class="mgr-table">
+                <thead><tr><th>Numara</th><th>Ad Soyad</th><th>Bölüm</th><th>Sınıf</th><th>GNO</th><th>Durum</th><th></th></tr></thead>
+                <tbody>
+                  @for (s of students; track s.student_no) {
+                    <tr>
+                      <td class="td-mono">{{ s.student_no }}</td>
+                      <td class="td-name">{{ s.full_name }}</td>
+                      <td>{{ s.department_name }}</td>
+                      <td>{{ s.class_year }}. Sınıf</td>
+                      <td>{{ s.gpa | number:'1.2-2' }}</td>
+                      <td><span class="status-chip" [class]="'chip-' + s.status">{{ s.status === 'active' ? 'Aktif' : s.status === 'passive' ? 'Pasif' : 'Mezun' }}</span></td>
+                      <td><button class="mgr-btn-sm" (click)="editingStudent = { ...s }">Düzenle</button></td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        }
+
+        <!-- ─── AKADEMİSYEN YÖNETİMİ ─────────────────────── -->
+        @if (activeNav === 'akademisyenler') {
+          <div class="mgr-page-header">
+            <div><h2 class="mgr-section-title">Akademisyen Yönetimi</h2><p class="mgr-section-sub">{{ instructors.length }} akademisyen</p></div>
+          </div>
+          <div class="mgr-toolbar">
+            <input class="mgr-search" [(ngModel)]="instructorSearch" placeholder="İsim veya sicil numarası..." (keyup.enter)="loadInstructors()">
+            <button class="mgr-btn-primary" (click)="loadInstructors()">Ara</button>
+          </div>
+          @if (editingInstructor) {
+            <div class="mgr-edit-panel">
+              <h4>{{ editingInstructor.full_name }} — Unvan Düzenle</h4>
+              <div class="mgr-edit-row">
+                <label>Unvan</label>
+                <select [(ngModel)]="editingInstructor.title">
+                  <option value="Prof. Dr.">Prof. Dr.</option><option value="Doç. Dr.">Doç. Dr.</option>
+                  <option value="Dr. Öğr. Üyesi">Dr. Öğr. Üyesi</option><option value="Öğr. Gör.">Öğr. Gör.</option><option value="Arş. Gör.">Arş. Gör.</option>
+                </select>
+              </div>
+              <div class="mgr-edit-actions">
+                <button class="mgr-btn-primary" (click)="saveInstructor()">Kaydet</button>
+                <button class="mgr-btn-ghost" (click)="editingInstructor = null">İptal</button>
+              </div>
+            </div>
+          }
+          @if (instructorsLoading) {
+            <div class="mgr-loading"><div class="mgr-spinner"></div><p>Yükleniyor...</p></div>
+          } @else if (instructors.length === 0) {
+            <p class="empty-msg">Akademisyen bulunamadı.</p>
+          } @else {
+            <div class="mgr-table-wrap">
+              <table class="mgr-table">
+                <thead><tr><th>Sicil No</th><th>Ad Soyad</th><th>Unvan</th><th>Bölüm</th><th>Ders</th><th>Durum</th><th></th></tr></thead>
+                <tbody>
+                  @for (ins of instructors; track ins.staff_id) {
+                    <tr>
+                      <td class="td-mono">{{ ins.staff_id }}</td>
+                      <td class="td-name">{{ ins.full_name }}</td>
+                      <td>{{ ins.title }}</td>
+                      <td>{{ ins.department_name }}</td>
+                      <td>{{ ins.course_count }}</td>
+                      <td><span class="status-chip" [class]="ins.is_active ? 'chip-active' : 'chip-passive'">{{ ins.is_active ? 'Aktif' : 'Pasif' }}</span></td>
+                      <td class="td-actions">
+                        <button class="mgr-btn-sm" (click)="editingInstructor = { ...ins }">Düzenle</button>
+                        <button class="mgr-btn-sm" [class.btn-danger]="ins.is_active" (click)="toggleInstructor(ins)">{{ ins.is_active ? 'Pasifleştir' : 'Aktifleştir' }}</button>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        }
+
+        <!-- ─── DERS YÖNETİMİ ─────────────────────────────── -->
+        @if (activeNav === 'dersler') {
+          <div class="mgr-page-header">
+            <div><h2 class="mgr-section-title">Ders Yönetimi</h2><p class="mgr-section-sub">{{ mgCourses.length }} ders</p></div>
+          </div>
+          <div class="mgr-toolbar">
+            <input class="mgr-search" [(ngModel)]="courseSearch" placeholder="Ders adı veya kodu..." (keyup.enter)="loadCourses()">
+            <button class="mgr-btn-primary" (click)="loadCourses()">Ara</button>
+          </div>
+          @if (mgCoursesLoading) {
+            <div class="mgr-loading"><div class="mgr-spinner"></div><p>Yükleniyor...</p></div>
+          } @else if (mgCourses.length === 0) {
+            <p class="empty-msg">Ders bulunamadı.</p>
+          } @else {
+            <div class="mgr-table-wrap">
+              <table class="mgr-table">
+                <thead><tr><th>Kod</th><th>Ad</th><th>Bölüm</th><th>Kredi</th><th>Sınıf</th><th>Şube</th><th>Kayıtlı</th><th>Durum</th><th></th></tr></thead>
+                <tbody>
+                  @for (c of mgCourses; track c.course_code) {
+                    <tr>
+                      <td class="td-mono">{{ c.course_code }}</td>
+                      <td class="td-name">{{ c.name }}</td>
+                      <td>{{ c.department_name }}</td>
+                      <td>{{ c.credits }}</td>
+                      <td>{{ c.class_year }}. Sınıf</td>
+                      <td>{{ c.section_count }}</td>
+                      <td>{{ c.enrolled_count }}</td>
+                      <td><span class="status-chip" [class]="c.is_active ? 'chip-active' : 'chip-passive'">{{ c.is_active ? 'Aktif' : 'Pasif' }}</span></td>
+                      <td><button class="mgr-btn-sm" [class.btn-danger]="c.is_active" (click)="toggleCourse(c)">{{ c.is_active ? 'Pasifleştir' : 'Aktifleştir' }}</button></td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        }
+
+        <!-- ─── DUYURU YÖNETİMİ ───────────────────────────── -->
+        @if (activeNav === 'duyurular') {
+          <div class="mgr-page-header">
+            <div><h2 class="mgr-section-title">Duyuru Yönetimi</h2><p class="mgr-section-sub">{{ mgAnnouncements.length }} duyuru</p></div>
+            <button class="mgr-btn-primary" (click)="showAnnForm = !showAnnForm">+ Yeni Duyuru</button>
+          </div>
+          @if (annMsg) { <p class="mgr-success-msg">{{ annMsg }}</p> }
+          @if (showAnnForm) {
+            <div class="mgr-form-card">
+              <h4>Yeni Duyuru Oluştur</h4>
+              <div class="mgr-form-group"><label>Başlık</label><input [(ngModel)]="annForm.title" placeholder="Duyuru başlığı"></div>
+              <div class="mgr-form-group"><label>İçerik</label><textarea [(ngModel)]="annForm.content" rows="4" placeholder="Duyuru içeriği..."></textarea></div>
+              <div class="mgr-form-row">
+                <div class="mgr-form-group">
+                  <label>Hedef Kitle</label>
+                  <select [(ngModel)]="annForm.audience">
+                    <option value="all">Tümü</option><option value="students">Öğrenciler</option><option value="instructors">Akademisyenler</option>
+                  </select>
+                </div>
+                <div class="mgr-form-group">
+                  <label>Öncelik</label>
+                  <select [(ngModel)]="annForm.priority">
+                    <option value="normal">Normal</option><option value="high">Yüksek</option><option value="low">Düşük</option>
+                  </select>
+                </div>
+              </div>
+              <div class="mgr-edit-actions">
+                <button class="mgr-btn-primary" [disabled]="annSubmitting" (click)="submitAnnouncement()">{{ annSubmitting ? 'Yayınlanıyor...' : 'Yayınla' }}</button>
+                <button class="mgr-btn-ghost" (click)="showAnnForm = false">İptal</button>
+              </div>
+            </div>
+          }
+          @if (mgAnnLoading) {
+            <div class="mgr-loading"><div class="mgr-spinner"></div><p>Yükleniyor...</p></div>
+          } @else if (mgAnnouncements.length === 0) {
+            <p class="empty-msg">Henüz duyuru yok.</p>
+          } @else {
+            <div class="mgr-ann-list">
+              @for (ann of mgAnnouncements; track ann.id) {
+                <div class="mgr-ann-card" [class.ann-inactive]="!ann.is_active">
+                  <div class="mgr-ann-top">
+                    <div>
+                      <span class="priority-dot" [class.important]="ann.priority==='high'"></span>
+                      <strong>{{ ann.title }}</strong>
+                      <span class="mgr-ann-meta">· {{ ann.audience === 'all' ? 'Tümü' : ann.audience }} · {{ ann.date }}</span>
+                    </div>
+                    <div class="td-actions">
+                      <button class="mgr-btn-sm" (click)="toggleAnnouncement(ann)">{{ ann.is_active ? 'Pasifleştir' : 'Aktifleştir' }}</button>
+                      <button class="mgr-btn-sm btn-danger" (click)="deleteAnnouncement(ann)">Sil</button>
+                    </div>
+                  </div>
+                  <p class="mgr-ann-content">{{ ann.content }}</p>
+                </div>
+              }
+            </div>
+          }
+        }
+
+        <!-- ─── RAPORLAR ───────────────────────────────────── -->
+        @if (activeNav === 'raporlar') {
+          <div class="mgr-page-header">
+            <div><h2 class="mgr-section-title">Akademik Raporlar</h2><p class="mgr-section-sub">{{ reports?.semester }} dönemi</p></div>
+            <button class="mgr-btn-ghost" (click)="loadReports()">↻ Yenile</button>
+          </div>
+          @if (reportsLoading || !reports) {
+            <div class="mgr-loading"><div class="mgr-spinner"></div><p>Yükleniyor...</p></div>
+          } @else {
+            <div class="mgr-report-grid">
+              <div class="mgr-rcard"><p class="rcard-label">TOPLAM ÖĞRENCİ</p><p class="rcard-val">{{ reports.overview.total_students }}</p></div>
+              <div class="mgr-rcard"><p class="rcard-label">AKTİF ÖĞRENCİ</p><p class="rcard-val">{{ reports.overview.active_students }}</p></div>
+              <div class="mgr-rcard"><p class="rcard-label">AKADEMİSYEN</p><p class="rcard-val">{{ reports.overview.total_instructors }}</p></div>
+              <div class="mgr-rcard"><p class="rcard-label">AKTİF DERS</p><p class="rcard-val">{{ reports.overview.total_courses }}</p></div>
+              <div class="mgr-rcard"><p class="rcard-label">DÖNEM KAYIT</p><p class="rcard-val">{{ reports.overview.semester_enrollments }}</p></div>
+              <div class="mgr-rcard"><p class="rcard-label">ORT. GNO</p><p class="rcard-val">{{ reports.overview.avg_gpa | number:'1.2-2' }}</p></div>
+            </div>
+            <div class="mgr-report-row">
+              <div class="mgr-report-panel">
+                <h4>Not Dağılımı</h4>
+                @if (gradeEntries.length === 0) {
+                  <p class="empty-msg">Veri yok.</p>
+                } @else {
+                  @for (g of gradeEntries; track g.key) {
+                    <div class="grade-row">
+                      <span class="grade-key">{{ g.key }}</span>
+                      <div class="grade-bar-wrap"><div class="grade-bar-fill" [style.width.%]="g.val / reports.overview.semester_enrollments * 100"></div></div>
+                      <span class="grade-cnt">{{ g.val }}</span>
+                    </div>
+                  }
+                }
+              </div>
+              <div class="mgr-report-panel">
+                <h4>Bölüm Bazında Öğrenci</h4>
+                @if (reports.department_breakdown.length === 0) {
+                  <p class="empty-msg">Veri yok.</p>
+                } @else {
+                  @for (d of reports.department_breakdown; track d.department) {
+                    <div class="grade-row">
+                      <span class="grade-key dept-key">{{ d.department }}</span>
+                      <div class="grade-bar-wrap"><div class="grade-bar-fill dept-fill" [style.width.%]="d.count / reports.overview.active_students * 100"></div></div>
+                      <span class="grade-cnt">{{ d.count }}</span>
+                    </div>
+                  }
+                }
+              </div>
+            </div>
+          }
+        }
+
+        <!-- ─── DEVAMSIZLIK ───────────────────────────────── -->
+        @if (activeNav === 'devamsizlik') {
+          <div class="mgr-page-header">
+            <div><h2 class="mgr-section-title">Devamsızlık İstatistikleri</h2><p class="mgr-section-sub">{{ attOverviewTotal }} kapalı yoklama oturumu</p></div>
           </div>
           @if (attOverviewLoading) {
             <div class="mgr-loading"><div class="mgr-spinner"></div><p>Yükleniyor...</p></div>
@@ -93,138 +435,88 @@
               @for (c of attOverview; track c.course_code + c.section) {
                 <div class="mgr-att-card" [class.mgr-att-danger]="c.attendance_rate < 70">
                   <div class="mgr-att-top">
-                    <div>
-                      <span class="mgr-att-code">{{ c.course_code }}</span>
-                      <span class="mgr-att-section">Şube {{ c.section }}</span>
-                    </div>
+                    <div><span class="mgr-att-code">{{ c.course_code }}</span><span class="mgr-att-section">Şube {{ c.section }}</span></div>
                     <span class="mgr-att-rate" [class.rate-ok]="c.attendance_rate >= 70" [class.rate-warn]="c.attendance_rate < 70">%{{ c.attendance_rate }}</span>
                   </div>
                   <p class="mgr-att-name">{{ c.course_name }}</p>
-                  <div class="mgr-att-bar-wrap">
-                    <div class="mgr-att-bar"><div class="mgr-att-fill" [style.width.%]="c.attendance_rate" [class.fill-ok]="c.attendance_rate >= 70" [class.fill-warn]="c.attendance_rate < 70"></div></div>
-                  </div>
+                  <div class="mgr-att-bar-wrap"><div class="mgr-att-bar"><div class="mgr-att-fill" [style.width.%]="c.attendance_rate" [class.fill-ok]="c.attendance_rate >= 70" [class.fill-warn]="c.attendance_rate < 70"></div></div></div>
                   <div class="mgr-att-stats">
-                    <span class="mgr-st present">✓ {{ c.total_present }} Var</span>
-                    <span class="mgr-st late">⏱ {{ c.total_late }} Geç</span>
-                    <span class="mgr-st absent">✗ {{ c.total_absent }} Yok</span>
+                    <span class="mgr-st present">✓ {{ c.total_present }}</span>
+                    <span class="mgr-st late">⏱ {{ c.total_late }}</span>
+                    <span class="mgr-st absent">✗ {{ c.total_absent }}</span>
                     <span class="mgr-st sessions">{{ c.session_count }} Oturum</span>
                   </div>
-                  @if (c.attendance_rate < 70) {
-                    <div class="mgr-att-warn">⚠ Bu derste devamsızlık yüksek!</div>
-                  }
+                  @if (c.attendance_rate < 70) { <div class="mgr-att-warn">⚠ Devamsızlık yüksek!</div> }
                 </div>
               }
             </div>
           }
         }
 
-        @if (activeNav !== 'devamsizlik') {
-        <!-- Welcome row -->
-        <div class="welcome-row">
-          <div class="welcome-left">
-            <p class="panel-label">YÖNETİCİ PANELİ</p>
-            <h1 class="welcome-title">Hoş geldiniz, {{ roleLabel }} {{ firstName }}.</h1>
-            <p class="welcome-sub">2024-2025 Bahar Dönemi · Kastamonu Üniversitesi</p>
+        <!-- ─── AYARLAR ────────────────────────────────────── -->
+        @if (activeNav === 'ayarlar') {
+          <div class="mgr-page-header">
+            <div><h2 class="mgr-section-title">Sistem Ayarları</h2><p class="mgr-section-sub">Dönem ve bölüm yapılandırması</p></div>
           </div>
-          <div class="new-ann-btn-wrap">
-            <button class="new-ann-btn">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-              Duyuru Yayınla
-            </button>
-          </div>
-        </div>
-
-        <!-- Stats row -->
-        <div class="stats-grid">
-          @for (s of statCards; track s.key) {
-            <div class="stat-card" [class]="'stat-card-' + s.color">
-              <p class="stat-label">{{ s.label }}</p>
-              <p class="stat-value">{{ loading ? '—' : stats[s.key] }}</p>
+          @if (settingsMsg) { <p class="mgr-success-msg">{{ settingsMsg }}</p> }
+          @if (settingsLoading) {
+            <div class="mgr-loading"><div class="mgr-spinner"></div><p>Yükleniyor...</p></div>
+          } @else {
+            <div class="mgr-settings-row">
+              <div class="mgr-settings-panel">
+                <h4>Dönemler</h4>
+                <div class="mgr-table-wrap">
+                  <table class="mgr-table">
+                    <thead><tr><th>Dönem</th><th>Başlangıç</th><th>Bitiş</th><th>Durum</th><th></th></tr></thead>
+                    <tbody>
+                      @for (sem of semesters; track sem.id) {
+                        <tr>
+                          <td class="td-name">{{ sem.name }}</td>
+                          <td>{{ sem.start_date }}</td>
+                          <td>{{ sem.end_date }}</td>
+                          <td><span class="status-chip" [class]="sem.is_active ? 'chip-active' : 'chip-passive'">{{ sem.is_active ? 'Aktif' : 'Pasif' }}</span></td>
+                          <td>
+                            @if (!sem.is_active) {
+                              <button class="mgr-btn-sm" (click)="activateSemester(sem)">Aktifleştir</button>
+                            }
+                          </td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+                <div class="mgr-form-card" style="margin-top:16px">
+                  <h4>Yeni Dönem Ekle</h4>
+                  <div class="mgr-form-group"><label>Dönem Adı</label><input [(ngModel)]="semesterForm.name" placeholder="2025-2026 Güz"></div>
+                  <div class="mgr-form-row">
+                    <div class="mgr-form-group"><label>Başlangıç</label><input type="date" [(ngModel)]="semesterForm.start_date"></div>
+                    <div class="mgr-form-group"><label>Bitiş</label><input type="date" [(ngModel)]="semesterForm.end_date"></div>
+                  </div>
+                  <button class="mgr-btn-primary" [disabled]="semesterSubmitting" (click)="submitSemester()">{{ semesterSubmitting ? 'Ekleniyor...' : '+ Ekle' }}</button>
+                </div>
+              </div>
+              <div class="mgr-settings-panel">
+                <h4>Bölümler</h4>
+                <div class="mgr-table-wrap">
+                  <table class="mgr-table">
+                    <thead><tr><th>Bölüm</th><th>Kontenjan</th><th>Maks. Kredi</th><th>Durum</th></tr></thead>
+                    <tbody>
+                      @for (d of mgDepartments; track d.department_id) {
+                        <tr>
+                          <td class="td-name">{{ d.name }}</td>
+                          <td>{{ d.quota }}</td>
+                          <td>{{ d.max_credits }}</td>
+                          <td><span class="status-chip" [class]="d.is_active ? 'chip-active' : 'chip-passive'">{{ d.is_active ? 'Aktif' : 'Pasif' }}</span></td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             </div>
           }
-        </div>
+        }
 
-        <!-- Quick actions -->
-        <div class="quick-grid">
-          <div class="quick-card">
-            <div class="quick-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></div>
-            <p class="quick-title">Öğrenci Yönetimi</p>
-            <p class="quick-sub">Kayıt, durum ve bilgiler</p>
-          </div>
-          <div class="quick-card">
-            <div class="quick-icon purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
-            <p class="quick-title">Akademisyen Yönetimi</p>
-            <p class="quick-sub">Kadro ve atamalar</p>
-          </div>
-          <div class="quick-card">
-            <div class="quick-icon teal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg></div>
-            <p class="quick-title">Ders Yönetimi</p>
-            <p class="quick-sub">Katalog ve açılan dersler</p>
-          </div>
-          <div class="quick-card">
-            <div class="quick-icon orange"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
-            <p class="quick-title">Duyuru Yayınla</p>
-            <p class="quick-sub">Tüm kullanıcılara duyuru</p>
-          </div>
-          <div class="quick-card">
-            <div class="quick-icon green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
-            <p class="quick-title">Raporlar</p>
-            <p class="quick-sub">Akademik istatistikler</p>
-          </div>
-          <div class="quick-card">
-            <div class="quick-icon gray"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></div>
-            <p class="quick-title">Sistem Ayarları</p>
-            <p class="quick-sub">Dönem ve yapılandırma</p>
-          </div>
-        </div>
-
-        <!-- Bottom row -->
-        <div class="bottom-row">
-          <!-- Recent activity -->
-          <div class="activity-card">
-            <div class="card-head">
-              <h3>Son İşlemler</h3>
-              <button class="see-all">Tümünü Gör →</button>
-            </div>
-            @if (recentActivities.length === 0) {
-              <p class="empty-msg">Henüz işlem yok.</p>
-            } @else {
-              @for (act of recentActivities; track act.time + act.text) {
-                <div class="activity-item">
-                  <div class="act-dot" [class]="'act-dot-' + act.type"></div>
-                  <div class="act-info">
-                    <p class="act-text">{{ act.text }}</p>
-                  </div>
-                  <p class="act-time">{{ act.time }}</p>
-                </div>
-              }
-            }
-          </div>
-
-          <!-- Announcements -->
-          <div class="announce-card">
-            <div class="card-head">
-              <h3>Aktif Duyurular</h3>
-              <button class="new-mini-btn">+ Yeni</button>
-            </div>
-            @if (announcements.length === 0) {
-              <p class="empty-msg">Duyuru bulunamadı.</p>
-            } @else {
-              @for (ann of announcements; track ann.title) {
-                <div class="ann-item">
-                  <div class="ann-left">
-                    <span class="priority-dot" [class.important]="ann.priority==='high'"></span>
-                    <div>
-                      <p class="ann-title">{{ ann.title }}</p>
-                      <p class="ann-date">{{ ann.date }}</p>
-                    </div>
-                  </div>
-                </div>
-              }
-            }
-          </div>
-        </div>
-        } <!-- /activeNav !== devamsizlik -->
       </main>
     </div>
   </div>

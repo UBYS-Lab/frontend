@@ -288,4 +288,68 @@ export class DashboardService {
   getManagerAnnouncements(): Observable<{ success: boolean; announcements: AnnouncementItem[] }> {
     return this.http.get<any>(`${this.API}/manager/announcements`);
   }
+
+  // Manager — Students
+  getManagerStudents(search = '', status = '', departmentId = ''): Observable<any> {
+    const params: any = {};
+    if (search)       params['search']        = search;
+    if (status)       params['status']        = status;
+    if (departmentId) params['department_id'] = departmentId;
+    return this.http.get<any>(`${this.API}/manager/students`, { params });
+  }
+  updateManagerStudent(studentNo: string, data: any): Observable<any> {
+    return this.http.put<any>(`${this.API}/manager/students/${studentNo}`, data);
+  }
+
+  // Manager — Instructors
+  getManagerInstructors(search = '', departmentId = ''): Observable<any> {
+    const params: any = {};
+    if (search)       params['search']        = search;
+    if (departmentId) params['department_id'] = departmentId;
+    return this.http.get<any>(`${this.API}/manager/instructors`, { params });
+  }
+  updateManagerInstructor(staffId: string, data: any): Observable<any> {
+    return this.http.put<any>(`${this.API}/manager/instructors/${staffId}`, data);
+  }
+
+  // Manager — Courses
+  getManagerCourses(search = '', departmentId = ''): Observable<any> {
+    const params: any = {};
+    if (search)       params['search']        = search;
+    if (departmentId) params['department_id'] = departmentId;
+    return this.http.get<any>(`${this.API}/manager/courses`, { params });
+  }
+  toggleManagerCourse(code: string): Observable<any> {
+    return this.http.put<any>(`${this.API}/manager/courses/${code}/toggle`, {});
+  }
+
+  // Manager — Announcements
+  getManagerAllAnnouncements(): Observable<any> {
+    return this.http.get<any>(`${this.API}/manager/announcements`);
+  }
+  createManagerAnnouncement(data: any): Observable<any> {
+    return this.http.post<any>(`${this.API}/manager/announcements`, data);
+  }
+  toggleManagerAnnouncement(id: string): Observable<any> {
+    return this.http.put<any>(`${this.API}/manager/announcements/${id}/toggle`, {});
+  }
+  deleteManagerAnnouncement(id: string): Observable<any> {
+    return this.http.delete<any>(`${this.API}/manager/announcements/${id}`);
+  }
+
+  // Manager — Reports
+  getManagerReports(): Observable<any> {
+    return this.http.get<any>(`${this.API}/manager/reports`);
+  }
+
+  // Manager — Settings
+  getManagerSettings(): Observable<any> {
+    return this.http.get<any>(`${this.API}/manager/settings`);
+  }
+  createManagerSemester(data: any): Observable<any> {
+    return this.http.post<any>(`${this.API}/manager/settings/semesters`, data);
+  }
+  activateManagerSemester(id: string): Observable<any> {
+    return this.http.put<any>(`${this.API}/manager/settings/semesters/${id}/activate`, {});
+  }
 }
