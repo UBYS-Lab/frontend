@@ -128,3 +128,117 @@
 .mgr-st.sessions { color: #667085; }
 .mgr-att-warn { margin-top: 8px; padding: 6px 10px; background: #fef2f2; border-radius: 8px;
   font-size: 11px; font-weight: 700; color: #dc2626; }
+
+/* ── Sayfa Başlığı ─────────────────────────────────────── */
+.mgr-page-header { display: flex; justify-content: space-between; align-items: flex-start;
+  margin-bottom: 20px; }
+
+/* ── Toolbar ────────────────────────────────────────────── */
+.mgr-toolbar { display: flex; gap: 10px; margin-bottom: 16px; align-items: center; flex-wrap: wrap; }
+.mgr-search  { flex: 1; min-width: 200px; padding: 9px 14px; border: 1.5px solid #d0d5dd;
+  border-radius: 8px; font-size: 14px; outline: none; }
+.mgr-search:focus { border-color: #3b5bdb; }
+.mgr-select  { padding: 9px 12px; border: 1.5px solid #d0d5dd; border-radius: 8px;
+  font-size: 14px; background: #fff; outline: none; }
+
+/* ── Butonlar ───────────────────────────────────────────── */
+.mgr-btn-primary { padding: 9px 18px; background: #3b5bdb; color: #fff; border: none;
+  border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; }
+.mgr-btn-primary:hover:not(:disabled) { background: #2f4abf; }
+.mgr-btn-primary:disabled { opacity: .6; cursor: not-allowed; }
+.mgr-btn-ghost { padding: 9px 18px; background: #fff; color: #344054;
+  border: 1.5px solid #d0d5dd; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; }
+.mgr-btn-ghost:hover { background: #f2f4f7; }
+.mgr-btn-sm   { padding: 5px 12px; border-radius: 6px; border: 1.5px solid #d0d5dd;
+  background: #fff; font-size: 12px; font-weight: 600; color: #344054; cursor: pointer; white-space: nowrap; }
+.mgr-btn-sm:hover { background: #f2f4f7; }
+.mgr-btn-sm.btn-danger { border-color: #fecaca; color: #dc2626; }
+.mgr-btn-sm.btn-danger:hover { background: #fef2f2; }
+
+/* ── Tablo ──────────────────────────────────────────────── */
+.mgr-table-wrap { overflow-x: auto; background: #fff; border: 1px solid #e4e7ec;
+  border-radius: 12px; }
+.mgr-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.mgr-table th { padding: 10px 14px; background: #f8f9fc; text-align: left; font-weight: 700;
+  color: #667085; font-size: 11px; text-transform: uppercase; letter-spacing: .4px;
+  border-bottom: 1px solid #e4e7ec; white-space: nowrap; }
+.mgr-table td { padding: 11px 14px; border-bottom: 1px solid #f2f4f7; color: #344054; }
+.mgr-table tr:last-child td { border-bottom: none; }
+.mgr-table tr:hover td { background: #fafafa; }
+.td-mono { font-family: monospace; font-weight: 700; color: #667085; }
+.td-name { font-weight: 600; color: #101828; }
+.td-actions { display: flex; gap: 6px; align-items: center; }
+
+/* ── Status chip ────────────────────────────────────────── */
+.status-chip { padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+.chip-active    { background: #d1fae5; color: #065f46; }
+.chip-passive   { background: #f3f4f6; color: #6b7280; }
+.chip-graduated { background: #dbeafe; color: #1e40af; }
+
+/* ── Edit panel ─────────────────────────────────────────── */
+.mgr-edit-panel { background: #f8f9fc; border: 1px solid #e4e7ec; border-radius: 12px;
+  padding: 20px; margin-bottom: 16px; }
+.mgr-edit-panel h4 { margin: 0 0 14px; font-size: 14px; font-weight: 700; color: #101828; }
+.mgr-edit-row  { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+.mgr-edit-row label { min-width: 70px; font-size: 13px; font-weight: 600; color: #344054; }
+.mgr-edit-row select { padding: 7px 12px; border: 1.5px solid #d0d5dd; border-radius: 8px;
+  font-size: 13px; background: #fff; }
+.mgr-edit-actions { display: flex; gap: 8px; margin-top: 14px; }
+
+/* ── Form card ──────────────────────────────────────────── */
+.mgr-form-card  { background: #fff; border: 1px solid #e4e7ec; border-radius: 12px;
+  padding: 20px; margin-bottom: 16px; }
+.mgr-form-card h4 { margin: 0 0 16px; font-size: 15px; font-weight: 700; color: #101828; }
+.mgr-form-group { display: flex; flex-direction: column; gap: 4px; flex: 1; }
+.mgr-form-group label { font-size: 12px; font-weight: 700; color: #344054; text-transform: uppercase;
+  letter-spacing: .4px; }
+.mgr-form-group input, .mgr-form-group select, .mgr-form-group textarea {
+  padding: 9px 12px; border: 1.5px solid #d0d5dd; border-radius: 8px; font-size: 14px;
+  font-family: inherit; outline: none; resize: vertical; }
+.mgr-form-group input:focus, .mgr-form-group select:focus, .mgr-form-group textarea:focus {
+  border-color: #3b5bdb; }
+.mgr-form-row { display: flex; gap: 16px; margin-bottom: 12px; }
+.mgr-form-group { margin-bottom: 12px; }
+.mgr-success-msg { background: #d1fae5; color: #065f46; padding: 10px 16px; border-radius: 8px;
+  font-size: 13px; font-weight: 700; margin-bottom: 16px; }
+
+/* ── Duyuru listesi ─────────────────────────────────────── */
+.mgr-ann-list { display: flex; flex-direction: column; gap: 10px; }
+.mgr-ann-card { background: #fff; border: 1px solid #e4e7ec; border-radius: 12px; padding: 16px; }
+.mgr-ann-card.ann-inactive { opacity: .55; }
+.mgr-ann-top  { display: flex; justify-content: space-between; align-items: flex-start;
+  gap: 12px; margin-bottom: 6px; }
+.mgr-ann-top strong { font-size: 14px; color: #101828; }
+.mgr-ann-meta { font-size: 12px; color: #98a2b3; margin-left: 4px; }
+.mgr-ann-content { margin: 0; font-size: 13px; color: #667085; line-height: 1.5; }
+
+/* ── Raporlar ───────────────────────────────────────────── */
+.mgr-report-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 14px; margin-bottom: 24px; }
+.mgr-rcard { background: #fff; border: 1px solid #e4e7ec; border-radius: 12px;
+  padding: 16px 18px; }
+.rcard-label { margin: 0 0 6px; font-size: 10px; font-weight: 800; color: #98a2b3;
+  text-transform: uppercase; letter-spacing: .6px; }
+.rcard-val   { margin: 0; font-size: 26px; font-weight: 900; color: #0c2461; }
+.mgr-report-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.mgr-report-panel { background: #fff; border: 1px solid #e4e7ec; border-radius: 12px;
+  padding: 20px; }
+.mgr-report-panel h4 { margin: 0 0 16px; font-size: 14px; font-weight: 700; color: #101828; }
+.grade-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.grade-key  { width: 54px; font-size: 12px; font-weight: 700; color: #344054; flex-shrink: 0; }
+.dept-key   { width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.grade-bar-wrap { flex: 1; height: 8px; background: #f2f4f7; border-radius: 99px; overflow: hidden; }
+.grade-bar-fill { height: 100%; background: #3b5bdb; border-radius: 99px; min-width: 2px; }
+.dept-fill  { background: #0891b2; }
+.grade-cnt  { width: 34px; text-align: right; font-size: 12px; font-weight: 700; color: #667085; }
+
+/* ── Ayarlar ────────────────────────────────────────────── */
+.mgr-settings-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.mgr-settings-panel { background: #fff; border: 1px solid #e4e7ec; border-radius: 12px;
+  padding: 20px; }
+.mgr-settings-panel h4 { margin: 0 0 16px; font-size: 14px; font-weight: 700; color: #101828; }
+
+@media (max-width: 768px) {
+  .mgr-report-row, .mgr-settings-row { grid-template-columns: 1fr; }
+  .mgr-toolbar { flex-direction: column; }
+}
