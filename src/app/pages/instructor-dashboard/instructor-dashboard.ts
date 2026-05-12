@@ -44,6 +44,26 @@ export class InstructorDashboardComponent implements OnInit, OnDestroy {
   ngrokOrigin = '';
   ngrokChecked = false;
 
+  // Ödevler
+  assignments: any[] = [];
+  assignmentsLoading = false;
+  selectedAssignment: any = null;
+  assignmentSubmissions: any[] = [];
+  allStudentsForAssignment: any[] = [];
+  submissionsLoading = false;
+  showCreateAssignment = false;
+  assignmentForm: any = {
+    course_code: '', section: '', title: '', description: '',
+    due_date: '', max_file_size_mb: 10,
+    allowed_extensions: ['pdf','doc','docx','zip','rar'],
+  };
+  assignmentSaving = false;
+  assignmentMsg = '';
+  gradingSubmission: any = null;
+  gradeInput: number | null = null;
+  feedbackInput = '';
+  gradingMsg = '';
+
   // Not girişi
   selectedGradeCourse: CourseItem | null = null;
   gradeStudents: CourseGradeStudent[] = [];
@@ -158,6 +178,7 @@ export class InstructorDashboardComponent implements OnInit, OnDestroy {
   setNav(nav: string) {
     this.activeNav = nav;
     if (nav !== 'notlar') { this.selectedGradeCourse = null; this.gradeStudents = []; }
+    if (nav === 'odevler') { this.loadAssignments(); }
     if (nav === 'devamsizlik') {
       const saved = localStorage.getItem('att_session_id');
       if (saved && !this.attSession) {
@@ -370,6 +391,138 @@ export class InstructorDashboardComponent implements OnInit, OnDestroy {
       },
       error: () => { this.gradeSaving = false; this.gradeSaveMsg = 'Hata oluştu.'; this.cdr.detectChanges(); },
     });
+  }
+
+  // ── Ödev metodları ─────────────────────────────────────
+  loadAssignments(): void {
+    if (!this.user) return;
+    this.assignmentsLoading = true;
+    this.dashService.getInstructorAssignments(this.user.identifier).subscribe({
+      next: (res) => { this.assignments = res.assignments ?? []; this.assignmentsLoading = false; this.cdr.detectChanges(); },
+      error: () => { this.assignmentsLoading = false; this.cdr.detectChanges(); },
+    });
+  }
+
+  openCreateAssignment(): void {
+    this.showCreateAssignment = true;
+    this.assignmentMsg = '';
+    this.assignmentForm = {
+      course_code: this.courses[0]?.course_code ?? '',
+      section:     this.courses[0]?.section ?? '',
+      title: '', description: '',
+      due_date: '', max_file_size_mb: 10,
+      allowed_extensions: ['pdf','doc','docx','zip','rar'],
+    };
+  }
+
+  onCourseSelect(courseCode: string): void {
+    const c = this.courses.find(x => x.course_code === courseCode);
+    if (c) { this.assignmentForm.course_code = c.course_code; this.assignmentForm.section = c.section; }
+  }
+
+  saveAssignment(): void {
+    if (!this.user || this.assignmentSaving) return;
+    if (!this.assignmentForm.title || !this.assignmentForm.due_date) {
+      this.assignmentMsg = 'Başlık ve son tarih zorunludur.'; return;
+    }
+    this.assignmentSaving = true;
+    this.assignmentMsg = '';
+    const formData = {
+      ...this.assignmentForm,
+      due_date: this.localDateTimeToISO(this.assignmentForm.due_date),
+    };
+    this.dashService.createAssignment(this.user.identifier, formData).subscribe({
+      next: () => {
+        this.assignmentSaving = false;
+        this.showCreateAssignment = false;
+        this.assignmentMsg = 'Ödev oluşturuldu.';
+        this.loadAssignments();
+        this.cdr.detectChanges();
+      },
+      error: () => { this.assignmentSaving = false; this.assignmentMsg = 'Hata oluştu.'; this.cdr.detectChanges(); },
+    });
+  }
+
+  viewSubmissions(assignment: any): void {
+    this.selectedAssignment = assignment;
+    this.submissionsLoading = true;
+    this.assignmentSubmissions = [];
+    this.allStudentsForAssignment = [];
+    this.cdr.detectChanges();
+    this.dashService.getAssignmentSubmissions(this.user!.identifier, assignment.id).subscribe({
+      next: (res) => {
+        this.allStudentsForAssignment = res.all_students ?? [];
+        this.assignmentSubmissions = this.allStudentsForAssignment.filter(s => s.submitted);
+        this.selectedAssignment = { ...assignment, enrolled_count: res.enrolled_count, submitted_count: res.submitted_count };
+        this.submissionsLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: () => { this.submissionsLoading = false; this.cdr.detectChanges(); },
+    });
+  }
+
+  backToAssignments(): void {
+    this.selectedAssignment = null;
+    this.assignmentSubmissions = [];
+    this.allStudentsForAssignment = [];
+    this.gradingSubmission = null;
+  }
+
+  downloadSubmission(sub: any, fileIndex = 0): void {
+    window.open(this.dashService.getSubmissionDownloadUrl(sub.id, fileIndex), '_blank');
+  }
+
+  startGrading(sub: any): void {
+    this.gradingSubmission = sub;
+    this.gradeInput  = sub.grade ?? sub.avg_grade ?? null;
+    this.feedbackInput = sub.feedback ?? '';
+    this.gradingMsg = '';
+  }
+
+  saveGradeForSubmission(): void {
+    if (!this.gradingSubmission) return;
+    this.dashService.gradeSubmission(this.gradingSubmission.id, this.gradeInput, this.feedbackInput).subscribe({
+      next: () => {
+        this.gradingMsg = 'Not kaydedildi.';
+        this.gradingSubmission.grade    = this.gradeInput;
+        this.gradingSubmission.feedback = this.feedbackInput;
+        this.gradingSubmission = null;
+        this.cdr.detectChanges();
+      },
+      error: () => { this.gradingMsg = 'Hata oluştu.'; this.cdr.detectChanges(); },
+    });
+  }
+
+  removeAssignment(id: string): void {
+    if (!confirm('Bu ödevi silmek istediğinizden emin misiniz?')) return;
+    this.dashService.deleteAssignment(this.user!.identifier, id).subscribe({
+      next: () => { this.assignments = this.assignments.filter(a => a.id !== id); this.cdr.detectChanges(); },
+      error: () => {},
+    });
+  }
+
+  parseExtensions(value: string): string[] {
+    return value.split(',').map(s => s.trim()).filter(Boolean);
+  }
+
+  localDateTimeToISO(localStr: string): string {
+    if (!localStr) return localStr;
+    const [datePart, timePart] = localStr.split('T');
+    if (!datePart || !timePart) return localStr;
+    const [y, mo, d]  = datePart.split('-').map(Number);
+    const [h, mi]     = timePart.split(':').map(Number);
+    return new Date(y, mo - 1, d, h, mi, 0).toISOString();
+  }
+
+  nowLocalDateTime(): string {
+    const d   = new Date();
+    const pad = (n: number) => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  }
+
+  isOverdue(dueDate: string): boolean {
+    if (!dueDate) return false;
+    return new Date(dueDate).getTime() < Date.now();
   }
 
   logout() {

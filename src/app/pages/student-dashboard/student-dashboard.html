@@ -37,6 +37,11 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><circle cx="12" cy="12" r="10"/></svg>
           Yoklama
         </button>
+        <button class="nav-item" [class.active]="activeNav==='odevler'" (click)="setNav('odevler')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          Ödevler
+          @if (pendingAssignmentCount > 0) { <span class="nav-badge">{{ pendingAssignmentCount }}</span> }
+        </button>
         <button class="nav-item" [class.active]="activeNav==='kampus'" (click)="setNav('kampus')">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
           Kampüs Yaşamı
@@ -604,6 +609,134 @@
 
               </div>
             }
+          }
+        }
+
+        <!-- ─── ÖDEVLER ──────────────────────────────────── -->
+        @if (activeNav === 'odevler') {
+          <div class="tr-page-header" style="margin-bottom:20px;">
+            <div>
+              <h2 class="tr-page-title">Ödevlerim</h2>
+              <p class="tr-page-sub">{{ activeSemester }} — Teslim edilecek ödevler</p>
+            </div>
+          </div>
+
+          @if (uploadMsg) {
+            <div [style.background]="uploadSuccess ? '#d1fae5' : '#fef2f2'"
+                 [style.color]="uploadSuccess ? '#065f46' : '#991b1b'"
+                 style="padding:10px 16px;border-radius:8px;font-size:13px;font-weight:700;margin-bottom:16px;">
+              {{ uploadMsg }}
+            </div>
+          }
+
+          @if (assignmentsLoading) {
+            <div style="text-align:center;padding:48px;color:#667085;">Yükleniyor...</div>
+          } @else if (studentAssignments.length === 0) {
+            <div style="text-align:center;padding:64px;background:#fff;border:1px solid #e4e7ec;border-radius:12px;">
+              <svg style="width:48px;height:48px;color:#d0d5dd;margin-bottom:12px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              <p style="color:#667085;margin:0;font-size:14px;">Henüz ödev yok.</p>
+            </div>
+          } @else {
+            <div style="display:flex;flex-direction:column;gap:14px;">
+              @for (a of studentAssignments; track a.id) {
+                <div style="background:#fff;border:1px solid #e4e7ec;border-radius:12px;padding:20px;display:flex;justify-content:space-between;align-items:flex-start;gap:16px;"
+                     [style.border-left]="a.submitted ? '4px solid #16a34a' : isOverdue(a.due_date) ? '4px solid #dc2626' : '4px solid #3b5bdb'">
+                  <div style="flex:1;">
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap;">
+                      <span style="font-size:15px;font-weight:700;color:#101828;">{{ a.title }}</span>
+                      @if (a.submitted) {
+                        <span style="background:#d1fae5;color:#065f46;font-size:10px;font-weight:800;padding:2px 10px;border-radius:20px;">✓ TESLİM EDİLDİ</span>
+                      } @else if (isOverdue(a.due_date)) {
+                        <span style="background:#fef2f2;color:#dc2626;font-size:10px;font-weight:800;padding:2px 10px;border-radius:20px;">SÜRESİ DOLDU</span>
+                      } @else {
+                        <span style="background:#eff6ff;color:#1d4ed8;font-size:10px;font-weight:800;padding:2px 10px;border-radius:20px;">BEKLEMEDE</span>
+                      }
+                    </div>
+                    <p style="margin:0 0 4px;font-size:12px;color:#667085;">
+                      <strong>{{ a.course_code }}</strong> / Şube {{ a.section }}
+                      &nbsp;·&nbsp; Son tarih: <strong [style.color]="isOverdue(a.due_date) && !a.submitted ? '#dc2626' : '#344054'">{{ a.due_date | date:'dd MMM yyyy HH:mm' }}</strong>
+                    </p>
+                    @if (a.description) {
+                      <p style="margin:6px 0 0;font-size:12px;color:#98a2b3;">{{ a.description }}</p>
+                    }
+                    @if (a.submitted) {
+                      <div style="margin-top:10px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:10px 14px;">
+                        <p style="margin:0 0 2px;font-size:11px;font-weight:700;color:#166534;">Teslim Edildi</p>
+                        <p style="margin:0;font-size:12px;color:#15803d;">{{ a.submitted_filename }} · {{ a.submitted_at | date:'dd MMM yyyy HH:mm' }}</p>
+                        @if (a.grade !== null && a.grade !== undefined) {
+                          <p style="margin:4px 0 0;font-size:12px;font-weight:700;color:#1d4ed8;">Not: {{ a.grade }}/100
+                            @if (a.feedback) { <span style="font-weight:400;color:#374151;"> — {{ a.feedback }}</span> }
+                          </p>
+                        }
+                      </div>
+                    }
+                  </div>
+                  @if (!a.submitted && isOverdue(a.due_date)) {
+                    <div style="flex-shrink:0;">
+                      <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:10px;padding:12px 16px;text-align:center;min-width:160px;">
+                        <div style="font-size:18px;margin-bottom:4px;">⏰</div>
+                        <div style="font-size:12px;font-weight:700;color:#dc2626;">Teslim süresi doldu</div>
+                        <div style="font-size:11px;color:#f87171;margin-top:2px;">Yükleme kapatıldı</div>
+                      </div>
+                    </div>
+                  }
+                  @if (!a.submitted && !isOverdue(a.due_date)) {
+                    <div style="flex-shrink:0;">
+                      @if (selectedUploadAssignment?.id === a.id) {
+                        <div style="display:flex;flex-direction:column;gap:8px;min-width:240px;">
+                          @if (uploadFiles.length > 0) {
+                            <div style="background:#f9fafb;border:2px dashed #d0d5dd;border-radius:8px;padding:10px 12px;font-size:12px;color:#344054;">
+                              @for (f of uploadFiles; track f.name) {
+                                <div style="display:flex;align-items:center;gap:6px;padding:2px 0;">
+                                  <span style="color:#3b5bdb;">📄</span> {{ f.name }}
+                                </div>
+                              }
+                            </div>
+                          } @else {
+                            <div style="background:#f9fafb;border:2px dashed #d0d5dd;border-radius:8px;padding:12px;text-align:center;font-size:12px;color:#98a2b3;">Dosya seçilmedi</div>
+                          }
+                          <label style="background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;text-align:center;display:block;">
+                            Dosya Seç (birden fazla)
+                            <input type="file" multiple style="display:none;"
+                                   [accept]="acceptString(a.allowed_extensions)"
+                                   (change)="onFileSelected($event, a)">
+                          </label>
+                          @if (uploadFiles.length > 0 && selectedUploadAssignment?.id === a.id) {
+                            <button style="background:#3b5bdb;color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer;"
+                                    (click)="submitFile(a)" [disabled]="uploadProgress">
+                              {{ uploadProgress ? 'Yükleniyor...' : 'Gönder (' + uploadFiles.length + ' dosya)' }}
+                            </button>
+                          }
+                          <button style="background:none;border:1px solid #e4e7ec;border-radius:8px;padding:6px 14px;font-size:11px;color:#667085;cursor:pointer;"
+                                  (click)="cancelUpload()">İptal</button>
+                        </div>
+                      } @else {
+                        <button style="background:#3b5bdb;color:#fff;border:none;border-radius:10px;padding:9px 18px;font-size:13px;font-weight:700;cursor:pointer;"
+                                (click)="selectedUploadAssignment=a; uploadFiles=[]; uploadMsg=''">
+                          Ödev Yükle
+                        </button>
+                      }
+                    </div>
+                  }
+                  @if (a.submitted && !isOverdue(a.due_date)) {
+                    <div style="flex-shrink:0;">
+                      <label style="background:#f3f4f6;color:#374151;border:1px solid #e4e7ec;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:600;cursor:pointer;display:block;text-align:center;">
+                        Yeniden Yükle
+                        <input type="file" multiple style="display:none;"
+                               [accept]="acceptString(a.allowed_extensions)"
+                               (change)="onFileSelected($event, a)">
+                      </label>
+                      @if (uploadFiles.length > 0 && selectedUploadAssignment?.id === a.id) {
+                        <button style="background:#3b5bdb;color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;margin-top:6px;width:100%;"
+                                (click)="submitFile(a)" [disabled]="uploadProgress">
+                          {{ uploadProgress ? 'Yükleniyor...' : 'Güncelle (' + uploadFiles.length + ' dosya)' }}
+                        </button>
+                      }
+                    </div>
+                  }
+                </div>
+              }
+            </div>
           }
         }
 

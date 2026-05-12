@@ -352,4 +352,50 @@ export class DashboardService {
   activateManagerSemester(id: string): Observable<any> {
     return this.http.put<any>(`${this.API}/manager/settings/semesters/${id}/activate`, {});
   }
+
+  // ── Assignment — Instructor ──────────────────────────────
+  getInstructorAssignments(instructorId: string): Observable<any> {
+    return this.http.get<any>(`${this.API}/assignment/instructor`, {
+      headers: { 'X-User-Id': instructorId },
+    });
+  }
+  createAssignment(instructorId: string, data: any): Observable<any> {
+    return this.http.post<any>(`${this.API}/assignment/instructor`, data, {
+      headers: { 'X-User-Id': instructorId },
+    });
+  }
+  getAssignmentSubmissions(instructorId: string, assignmentId: string): Observable<any> {
+    return this.http.get<any>(`${this.API}/assignment/instructor/${assignmentId}/submissions`, {
+      headers: { 'X-User-Id': instructorId },
+    });
+  }
+  getSubmissionDownloadUrl(submissionId: string, fileIndex = 0): string {
+    return `${this.API}/assignment/instructor/submission/${submissionId}/download?index=${fileIndex}`;
+  }
+  gradeSubmission(submissionId: string, grade: number | null, feedback: string): Observable<any> {
+    return this.http.post<any>(
+      `${this.API}/assignment/instructor/submission/${submissionId}/grade`,
+      { grade, feedback }
+    );
+  }
+  deleteAssignment(instructorId: string, assignmentId: string): Observable<any> {
+    return this.http.delete<any>(`${this.API}/assignment/instructor/${assignmentId}`, {
+      headers: { 'X-User-Id': instructorId },
+    });
+  }
+
+  // ── Assignment — Student ─────────────────────────────────
+  getStudentAssignments(studentNo: string): Observable<any> {
+    return this.http.get<any>(`${this.API}/assignment/student`, {
+      headers: { 'X-User-Id': studentNo },
+    });
+  }
+  submitAssignment(studentNo: string, assignmentId: string, files: File[]): Observable<any> {
+    const fd = new FormData();
+    files.forEach(f => fd.append('files[]', f));
+    fd.append('student_no', studentNo);
+    return this.http.post<any>(`${this.API}/assignment/student/${assignmentId}/submit`, fd, {
+      headers: { 'X-User-Id': studentNo },
+    });
+  }
 }
