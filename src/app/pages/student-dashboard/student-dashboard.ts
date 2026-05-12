@@ -32,6 +32,15 @@ export class StudentDashboardComponent implements OnInit {
   commentText = '';
   commentSubmitting = false;
 
+  // Ödevler
+  studentAssignments: any[] = [];
+  assignmentsLoading = false;
+  selectedUploadAssignment: any = null;
+  uploadFiles: File[] = [];
+  uploadProgress = false;
+  uploadMsg = '';
+  uploadSuccess = false;
+
   attendanceSummary: any[] = [];
   attendanceLoading = false;
   qrTokenInput = '';
@@ -129,6 +138,69 @@ export class StudentDashboardComponent implements OnInit {
     if (nav === 'yoklama' && this.attendanceSummary.length === 0 && !this.attendanceLoading) {
       this.loadAttendance();
     }
+    if (nav === 'odevler') { this.loadStudentAssignments(); }
+  }
+
+  loadStudentAssignments(): void {
+    if (!this.user) return;
+    this.assignmentsLoading = true;
+    this.dashService.getStudentAssignments(this.user.identifier).subscribe({
+      next: (res) => { this.studentAssignments = res.assignments ?? []; this.assignmentsLoading = false; this.cdr.detectChanges(); },
+      error: () => { this.assignmentsLoading = false; this.cdr.detectChanges(); },
+    });
+  }
+
+  onFileSelected(event: Event, assignment: any): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      this.uploadFiles = Array.from(input.files);
+      this.selectedUploadAssignment = assignment;
+      this.uploadMsg = '';
+      this.uploadSuccess = false;
+      this.cdr.detectChanges();
+    }
+  }
+
+  submitFile(assignment: any): void {
+    if (!this.uploadFiles.length || !this.user || this.uploadProgress) return;
+    this.uploadProgress = true;
+    this.uploadMsg = '';
+    this.dashService.submitAssignment(this.user.identifier, assignment.id, this.uploadFiles).subscribe({
+      next: (res) => {
+        this.uploadProgress = false;
+        this.uploadSuccess = true;
+        this.uploadMsg = res.message ?? 'Ödev başarıyla teslim edildi.';
+        this.uploadFiles = [];
+        this.selectedUploadAssignment = null;
+        this.loadStudentAssignments();
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.uploadProgress = false;
+        this.uploadSuccess = false;
+        this.uploadMsg = err?.error?.message ?? 'Dosya yüklenemedi.';
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  isOverdue(dueDate: string): boolean {
+    if (!dueDate) return false;
+    return new Date(dueDate).getTime() < Date.now();
+  }
+
+  acceptString(extensions: string[]): string {
+    return (extensions ?? []).map(e => '.' + e).join(',');
+  }
+
+  cancelUpload(): void {
+    this.uploadFiles = [];
+    this.selectedUploadAssignment = null;
+    this.uploadMsg = '';
+  }
+
+  get pendingAssignmentCount(): number {
+    return this.studentAssignments.filter(a => !a.submitted && !this.isOverdue(a.due_date)).length;
   }
 
   loadAttendance(): void {

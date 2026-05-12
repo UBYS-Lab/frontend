@@ -39,6 +39,10 @@
           Kayıt Onayları
           @if (pendingRequestCount > 0) { <span class="nav-badge">{{ pendingRequestCount }}</span> }
         </button>
+        <button class="nav-item" [class.active]="activeNav==='odevler'" (click)="setNav('odevler')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          Ödevler
+        </button>
         <button class="nav-item" [class.active]="activeNav==='duyurular'" (click)="setNav('duyurular')">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
           Duyurular
@@ -86,7 +90,7 @@
           <div class="welcome-left">
             <p class="panel-label">AKADEMİSYEN PANELİ</p>
             <h1 class="welcome-title">Hoş geldiniz, {{ user.title }} {{ firstName }}.</h1>
-            <p class="welcome-sub">2024-2025 Bahar Dönemi · {{ courses.length }} aktif ders · {{ totalStudents }} öğrenci</p>
+            <p class="welcome-sub">2025-2026 Güz Dönemi · {{ courses.length }} aktif ders · {{ totalStudents }} öğrenci</p>
           </div>
           <div class="stat-boxes">
             <div class="stat-box">
@@ -560,6 +564,250 @@
                 </div>
               }
             </div>
+          }
+        }
+
+        <!-- ─── ÖDEVLER ──────────────────────────────────── -->
+        @if (activeNav === 'odevler') {
+
+          @if (!selectedAssignment) {
+            <!-- Liste görünümü -->
+            <div class="section-header" style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;">
+              <div>
+                <h2>Ödevler</h2>
+                <span class="section-sub">Verdiğiniz ödevler ve teslimler</span>
+              </div>
+              <button class="att-btn att-btn-primary" (click)="openCreateAssignment()">+ Yeni Ödev</button>
+            </div>
+
+            @if (assignmentMsg) {
+              <div style="background:#d1fae5;color:#065f46;padding:10px 16px;border-radius:8px;font-size:13px;font-weight:700;margin-bottom:16px;">{{ assignmentMsg }}</div>
+            }
+
+            @if (showCreateAssignment) {
+              <div class="grade-panel" style="margin-bottom:20px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                  <h4 style="margin:0;font-size:15px;font-weight:700;">Yeni Ödev Oluştur</h4>
+                  <button style="background:none;border:none;font-size:20px;cursor:pointer;color:#667085;" (click)="showCreateAssignment=false">×</button>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:12px;">
+                  <div>
+                    <label style="font-size:11px;font-weight:700;color:#344054;text-transform:uppercase;letter-spacing:.4px;display:block;margin-bottom:4px;">Ders</label>
+                    <select style="width:100%;padding:9px 12px;border:1.5px solid #d0d5dd;border-radius:8px;font-size:14px;"
+                            [(ngModel)]="assignmentForm.course_code" (change)="onCourseSelect(assignmentForm.course_code)">
+                      @for (c of courses; track c.course_code) {
+                        <option [value]="c.course_code">{{ c.course_code }} - {{ c.course_name }} ({{ c.section }})</option>
+                      }
+                    </select>
+                  </div>
+                  <div>
+                    <label style="font-size:11px;font-weight:700;color:#344054;text-transform:uppercase;letter-spacing:.4px;display:block;margin-bottom:4px;">Son Teslim Tarihi</label>
+                    <input type="datetime-local" style="width:100%;padding:9px 12px;border:1.5px solid #d0d5dd;border-radius:8px;font-size:14px;box-sizing:border-box;"
+                           [min]="nowLocalDateTime()"
+                           [(ngModel)]="assignmentForm.due_date">
+                  </div>
+                </div>
+                <div style="margin-bottom:12px;">
+                  <label style="font-size:11px;font-weight:700;color:#344054;text-transform:uppercase;letter-spacing:.4px;display:block;margin-bottom:4px;">Başlık</label>
+                  <input type="text" placeholder="Ödev başlığı..." style="width:100%;padding:9px 12px;border:1.5px solid #d0d5dd;border-radius:8px;font-size:14px;box-sizing:border-box;"
+                         [(ngModel)]="assignmentForm.title">
+                </div>
+                <div style="margin-bottom:12px;">
+                  <label style="font-size:11px;font-weight:700;color:#344054;text-transform:uppercase;letter-spacing:.4px;display:block;margin-bottom:4px;">Açıklama</label>
+                  <textarea rows="3" placeholder="Ödev açıklaması..." style="width:100%;padding:9px 12px;border:1.5px solid #d0d5dd;border-radius:8px;font-size:14px;font-family:inherit;resize:vertical;box-sizing:border-box;"
+                            [(ngModel)]="assignmentForm.description"></textarea>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;">
+                  <div>
+                    <label style="font-size:11px;font-weight:700;color:#344054;text-transform:uppercase;letter-spacing:.4px;display:block;margin-bottom:4px;">Maks. Dosya Boyutu (MB)</label>
+                    <input type="number" min="1" max="100" style="width:100%;padding:9px 12px;border:1.5px solid #d0d5dd;border-radius:8px;font-size:14px;box-sizing:border-box;"
+                           [(ngModel)]="assignmentForm.max_file_size_mb">
+                  </div>
+                  <div>
+                    <label style="font-size:11px;font-weight:700;color:#344054;text-transform:uppercase;letter-spacing:.4px;display:block;margin-bottom:4px;">İzin Verilen Uzantılar</label>
+                    <input type="text" placeholder="pdf,doc,docx,zip" style="width:100%;padding:9px 12px;border:1.5px solid #d0d5dd;border-radius:8px;font-size:14px;box-sizing:border-box;"
+                           [value]="assignmentForm.allowed_extensions?.join(',')"
+                           (change)="assignmentForm.allowed_extensions = parseExtensions($any($event.target).value)">
+                  </div>
+                </div>
+                @if (assignmentMsg && assignmentSaving === false) {
+                  <p style="color:#dc2626;font-size:13px;margin:0 0 10px;">{{ assignmentMsg }}</p>
+                }
+                <div style="display:flex;gap:8px;">
+                  <button class="att-btn att-btn-primary" (click)="saveAssignment()" [disabled]="assignmentSaving">
+                    {{ assignmentSaving ? 'Kaydediliyor...' : 'Ödevi Oluştur' }}
+                  </button>
+                  <button class="att-btn" (click)="showCreateAssignment=false">İptal</button>
+                </div>
+              </div>
+            }
+
+            @if (assignmentsLoading) {
+              <div style="text-align:center;padding:40px;color:#667085;">Yükleniyor...</div>
+            } @else if (assignments.length === 0) {
+              <div style="text-align:center;padding:48px;background:#fff;border:1px solid #e4e7ec;border-radius:12px;">
+                <p style="color:#667085;margin:0;">Henüz ödev oluşturulmadı.</p>
+              </div>
+            } @else {
+              <div style="display:flex;flex-direction:column;gap:12px;">
+                @for (a of assignments; track a.id) {
+                  <div style="background:#fff;border:1px solid #e4e7ec;border-radius:12px;padding:18px;display:flex;justify-content:space-between;align-items:flex-start;gap:16px;">
+                    <div style="flex:1;">
+                      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+                        <span style="font-size:14px;font-weight:700;color:#101828;">{{ a.title }}</span>
+                        @if (isOverdue(a.due_date)) {
+                          <span style="background:#fef2f2;color:#dc2626;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;">SÜRESİ DOLDU</span>
+                        } @else {
+                          <span style="background:#d1fae5;color:#065f46;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;">AKTİF</span>
+                        }
+                      </div>
+                      <p style="margin:0 0 6px;font-size:12px;color:#667085;">
+                        <strong>{{ a.course_name || a.course_code }}</strong> / Şube {{ a.section }} &nbsp;·&nbsp;
+                        Son tarih: <strong>{{ a.due_date | date:'dd MMM yyyy HH:mm' }}</strong>
+                      </p>
+                      @if (a.description) {
+                        <p style="margin:0;font-size:12px;color:#98a2b3;">{{ a.description }}</p>
+                      }
+                    </div>
+                    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;flex-shrink:0;">
+                      <div style="font-size:13px;font-weight:700;color:#3b5bdb;">{{ a.submission_count ?? 0 }} teslim</div>
+                      <div style="display:flex;gap:6px;">
+                        <button class="att-btn att-btn-primary" style="font-size:12px;padding:5px 12px;" (click)="viewSubmissions(a)">Teslimler</button>
+                        <button class="att-btn" style="font-size:12px;padding:5px 12px;border-color:#fecaca;color:#dc2626;" (click)="removeAssignment(a.id)">Sil</button>
+                      </div>
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+
+          } @else {
+            <!-- Teslim detay görünümü -->
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+              <button class="att-btn" (click)="backToAssignments()">← Geri</button>
+              <div>
+                <h2 style="margin:0;font-size:18px;font-weight:700;">{{ selectedAssignment.title }}</h2>
+                <span style="font-size:12px;color:#667085;">
+                  {{ selectedAssignment.course_name || selectedAssignment.course_code }} / Şube {{ selectedAssignment.section }} &nbsp;·&nbsp;
+                  Son tarih: {{ selectedAssignment.due_date | date:'dd MMM yyyy HH:mm' }}
+                </span>
+              </div>
+            </div>
+
+            <div style="display:flex;gap:12px;margin-bottom:20px;">
+              <div style="background:#fff;border:1px solid #e4e7ec;border-radius:12px;padding:16px 24px;text-align:center;flex:1;">
+                <p style="margin:0 0 4px;font-size:10px;font-weight:800;color:#98a2b3;text-transform:uppercase;">Kayıtlı</p>
+                <p style="margin:0;font-size:28px;font-weight:900;color:#0c2461;">{{ selectedAssignment.enrolled_count ?? '—' }}</p>
+              </div>
+              <div style="background:#fff;border:1px solid #e4e7ec;border-radius:12px;padding:16px 24px;text-align:center;flex:1;">
+                <p style="margin:0 0 4px;font-size:10px;font-weight:800;color:#98a2b3;text-transform:uppercase;">Teslim Eden</p>
+                <p style="margin:0;font-size:28px;font-weight:900;color:#16a34a;">{{ selectedAssignment.submitted_count ?? 0 }}</p>
+              </div>
+              <div style="background:#fff;border:1px solid #e4e7ec;border-radius:12px;padding:16px 24px;text-align:center;flex:1;">
+                <p style="margin:0 0 4px;font-size:10px;font-weight:800;color:#98a2b3;text-transform:uppercase;">Bekleyen</p>
+                <p style="margin:0;font-size:28px;font-weight:900;color:#dc2626;">{{ (selectedAssignment.enrolled_count ?? 0) - (selectedAssignment.submitted_count ?? 0) }}</p>
+              </div>
+            </div>
+
+            @if (gradingMsg) {
+              <div style="background:#d1fae5;color:#065f46;padding:10px 16px;border-radius:8px;font-size:13px;font-weight:700;margin-bottom:12px;">{{ gradingMsg }}</div>
+            }
+
+            @if (gradingSubmission) {
+              <div class="grade-panel" style="margin-bottom:16px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+                  <h4 style="margin:0;font-size:14px;font-weight:700;">{{ gradingSubmission.student_name }} — Not Ver</h4>
+                  <button style="background:none;border:none;font-size:20px;cursor:pointer;color:#667085;" (click)="gradingSubmission=null">×</button>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 2fr;gap:12px;margin-bottom:12px;">
+                  <div>
+                    <label style="font-size:11px;font-weight:700;color:#344054;display:block;margin-bottom:4px;">Not (0-100)</label>
+                    <input type="number" min="0" max="100" style="width:100%;padding:9px 12px;border:1.5px solid #d0d5dd;border-radius:8px;font-size:14px;box-sizing:border-box;"
+                           [(ngModel)]="gradeInput">
+                  </div>
+                  <div>
+                    <label style="font-size:11px;font-weight:700;color:#344054;display:block;margin-bottom:4px;">Geri Bildirim</label>
+                    <input type="text" placeholder="Geri bildirim..." style="width:100%;padding:9px 12px;border:1.5px solid #d0d5dd;border-radius:8px;font-size:14px;box-sizing:border-box;"
+                           [(ngModel)]="feedbackInput">
+                  </div>
+                </div>
+                <button class="att-btn att-btn-primary" (click)="saveGradeForSubmission()">Kaydet</button>
+              </div>
+            }
+
+            @if (submissionsLoading) {
+              <div style="text-align:center;padding:40px;color:#667085;">Yükleniyor...</div>
+            } @else if (allStudentsForAssignment.length === 0) {
+              <div style="text-align:center;padding:48px;background:#fff;border:1px solid #e4e7ec;border-radius:12px;">
+                <p style="color:#667085;margin:0;">Kayıtlı öğrenci bulunamadı.</p>
+              </div>
+            } @else {
+              <div style="background:#fff;border:1px solid #e4e7ec;border-radius:12px;overflow:hidden;">
+                <table style="width:100%;border-collapse:collapse;font-size:13px;">
+                  <thead>
+                    <tr style="background:#f8f9fc;">
+                      <th style="padding:10px 14px;text-align:left;font-size:11px;font-weight:700;color:#667085;text-transform:uppercase;border-bottom:1px solid #e4e7ec;">Öğrenci</th>
+                      <th style="padding:10px 14px;text-align:left;font-size:11px;font-weight:700;color:#667085;text-transform:uppercase;border-bottom:1px solid #e4e7ec;">Dosya</th>
+                      <th style="padding:10px 14px;text-align:left;font-size:11px;font-weight:700;color:#667085;text-transform:uppercase;border-bottom:1px solid #e4e7ec;">Teslim Tarihi</th>
+                      <th style="padding:10px 14px;text-align:left;font-size:11px;font-weight:700;color:#667085;text-transform:uppercase;border-bottom:1px solid #e4e7ec;">Not</th>
+                      <th style="padding:10px 14px;text-align:right;font-size:11px;font-weight:700;color:#667085;text-transform:uppercase;border-bottom:1px solid #e4e7ec;">İşlem</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (sub of allStudentsForAssignment; track sub.student_no) {
+                      <tr style="border-bottom:1px solid #f2f4f7;" [style.background]="!sub.submitted ? '#fffbeb' : 'transparent'">
+                        <td style="padding:11px 14px;">
+                          <div style="font-weight:600;color:#101828;">{{ sub.student_name }}</div>
+                          <div style="font-size:11px;color:#98a2b3;font-family:monospace;">{{ sub.student_no }}</div>
+                        </td>
+                        <td style="padding:11px 14px;font-size:12px;">
+                          @if (sub.submitted) {
+                            @if (sub.original_filenames && sub.original_filenames.length > 1) {
+                              <div style="display:flex;flex-direction:column;gap:2px;">
+                                @for (fname of sub.original_filenames; track fname; let fi = $index) {
+                                  <a (click)="downloadSubmission(sub, fi)" style="color:#3b5bdb;cursor:pointer;text-decoration:underline;">
+                                    📄 {{ fname }}
+                                  </a>
+                                }
+                              </div>
+                            } @else {
+                              <span style="color:#344054;">{{ sub.original_filename }}</span>
+                            }
+                          } @else {
+                            <span style="background:#fef3c7;color:#92400e;font-size:11px;font-weight:700;padding:2px 8px;border-radius:12px;">Teslim Etmedi</span>
+                          }
+                        </td>
+                        <td style="padding:11px 14px;color:#667085;font-size:12px;">
+                          {{ sub.submitted ? (sub.submitted_at | date:'dd MMM yyyy HH:mm') : '—' }}
+                        </td>
+                        <td style="padding:11px 14px;">
+                          @if (sub.grade !== null && sub.grade !== undefined) {
+                            <span style="font-weight:700;color:#3b5bdb;">{{ sub.grade }}/100</span>
+                          } @else if (sub.avg_grade !== null && sub.avg_grade !== undefined) {
+                            <span style="font-size:11px;color:#667085;">Ort: {{ sub.avg_grade }}</span>
+                          } @else {
+                            <span style="color:#98a2b3;">—</span>
+                          }
+                        </td>
+                        <td style="padding:11px 14px;text-align:right;">
+                          @if (sub.submitted) {
+                            <div style="display:flex;justify-content:flex-end;gap:6px;">
+                              @if (!sub.original_filenames || sub.original_filenames.length <= 1) {
+                                <button class="att-btn att-btn-primary" style="font-size:11px;padding:4px 10px;" (click)="downloadSubmission(sub, 0)">İndir</button>
+                              }
+                              <button class="att-btn" style="font-size:11px;padding:4px 10px;"
+                                      (click)="startGrading(sub)">
+                                Not Ver{{ sub.avg_grade ? ' (Ort: ' + sub.avg_grade + ')' : '' }}
+                              </button>
+                            </div>
+                          }
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            }
           }
         }
 
